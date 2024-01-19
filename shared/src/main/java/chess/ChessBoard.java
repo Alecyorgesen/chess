@@ -34,6 +34,7 @@ public class ChessBoard {
     public ChessPiece getPiece(ChessPosition position) {
         return this.squares[position.getRow()][position.getColumn()];
     }
+    public ChessPiece getPiece(int row, int column) { return this.squares[row][column]; }
 
     /**
      * Sets the board to the default starting board

@@ -1,6 +1,8 @@
 package chess;
 
+import java.awt.*;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
 
 /**
@@ -51,12 +53,64 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-//        if (type==PieceType.PAWN) {
-//            if this.
-//        }
-//        return //something
+        HashSet<ChessMove> availableMoves = new HashSet<ChessMove>();
+        int row = myPosition.getRow();
+        int column = myPosition.getColumn();
+        int direction = 1;
+        ChessPosition endPosition;
+        ChessPiece chessPiece;
+//        ChessPosition position = new ChessPosition(row, column);
+        if (type==PieceType.PAWN) {
+            if (this.pieceColor == ChessGame.TeamColor.BLACK) {direction = -1;}
+
+            if (board.getPiece(row, column + direction) == null) {
+                endPosition = new ChessPosition(row, column + direction);
+                availableMoves.add(new ChessMove(myPosition,endPosition,null));
+                if (row == 2 || row == 7) {
+                    if (isValidCoordinant(row, column)) {
+                        if (board.getPiece(row, column + direction*2) == null) {
+                            endPosition = new ChessPosition(row, column + direction*2);
+                            availableMoves.add(new ChessMove(myPosition,endPosition,null));
+                        }
+                    }
+                }
+            }
+            int[] attackPosititons = {1, -1};
+            for (int i : attackPosititons) {
+                if (isValidCoordinant(row + i, column + direction)) {
+                    chessPiece = board.getPiece(row + i, column + direction);
+                    if (chessPiece != null) {
+                        if (chessPiece.getTeamColor() != this.getTeamColor()) {
+                            endPosition = new ChessPosition(row + i, column + direction);
+                            availableMoves.add(new ChessMove(myPosition, endPosition, null));
+                        }
+                    }
+                }
+            }
+
+        } else if (type==PieceType.ROOK) {
+
+        } else if (type==PieceType.KNIGHT) {
+
+        } else if (type==PieceType.BISHOP) {
+
+        } else if (type==PieceType.QUEEN) {
+
+        } else if (type==PieceType.KING) {
+
+        }
+        return availableMoves; //something
     }
 
+    private boolean isValidCoordinant(int row, int column) {
+        if (row < 1 || row > 8) {
+            return false;
+        } else if (column < 1 || column > 8) {
+            return false;
+        } else {
+            return true;
+        }
+    }
     @Override
     public String toString() {
         return "ChessPiece{" +
