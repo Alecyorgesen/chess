@@ -59,17 +59,15 @@ public class ChessPiece {
         int direction = 1;
         ChessPosition endPosition;
         ChessPiece chessPiece;
-//        ChessPosition position = new ChessPosition(row, column);
         if (type==PieceType.PAWN) {
-            if (this.pieceColor == ChessGame.TeamColor.BLACK) {direction = -1;}
-
-            if (board.getPiece(row, column + direction) == null) {
-                endPosition = new ChessPosition(row, column + direction);
+            if (this.pieceColor == ChessGame.TeamColor.BLACK) {direction = -1;} //This line tells it to go the opposite way if black.
+            if (board.getPiece(row + direction, column) == null) {
+                endPosition = new ChessPosition(row + direction, column);
                 availableMoves.add(new ChessMove(myPosition,endPosition,null));
                 if (row == 2 || row == 7) {
-                    if (isValidCoordinant(row, column)) {
-                        if (board.getPiece(row, column + direction*2) == null) {
-                            endPosition = new ChessPosition(row, column + direction*2);
+                    if (isValidCoordinant(row + direction*2, column)) {
+                        if (board.getPiece(row + direction*2, column) == null) {
+                            endPosition = new ChessPosition(row + direction*2, column);
                             availableMoves.add(new ChessMove(myPosition,endPosition,null));
                         }
                     }
@@ -77,16 +75,17 @@ public class ChessPiece {
             }
             int[] attackPosititons = {1, -1};
             for (int i : attackPosititons) {
-                if (isValidCoordinant(row + i, column + direction)) {
-                    chessPiece = board.getPiece(row + i, column + direction);
+                if (isValidCoordinant(row + direction, column + i)) {
+                    chessPiece = board.getPiece(row + direction, column + i);
                     if (chessPiece != null) {
                         if (chessPiece.getTeamColor() != this.getTeamColor()) {
-                            endPosition = new ChessPosition(row + i, column + direction);
+                            endPosition = new ChessPosition(row + direction, column + i);
                             availableMoves.add(new ChessMove(myPosition, endPosition, null));
                         }
                     }
                 }
             }
+
 
         } else if (type==PieceType.ROOK) {
 
