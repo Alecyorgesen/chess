@@ -325,19 +325,19 @@ public class ChessPiece {
             }
         } else
         if (type==PieceType.KING) {
-//            for (int i = -1;i<2;i++) {
-//                for (int j = -1;j<2;i++) {
-//                    if (i==0 && j==0) {continue;}
-//                    if (!isValidCoordinant(row+i,column+i)) {continue;}
-//                    chessPiece = board.getPiece(row+i,column+j);
-//                    endPosition = new ChessPosition(row+i,column+i);
-//                    if (chessPiece == null) {
-//                        availableMoves.add(new ChessMove(myPosition,endPosition,null));
-//                    } else if (chessPiece.getTeamColor() != this.getTeamColor()) {
-//                        availableMoves.add(new ChessMove(myPosition,endPosition,null));
-//                    }
-//                }
-//            }
+            for (int i = -1; i<2; i++) {
+                for (int j = -1; j<2; j++) {
+                    if (!isValidCoordinant(row+i,column+j)) {continue;}
+                    if (i==0 && j==0) {continue;}
+                    chessPiece = board.getPiece(row+i,column+j);
+                    endPosition = new ChessPosition(row+i,column+j);
+                    if (chessPiece == null) {
+                        availableMoves.add(new ChessMove(myPosition,endPosition,null));
+                    } else if (chessPiece.getTeamColor() != this.getTeamColor()) {
+                        availableMoves.add(new ChessMove(myPosition,endPosition,null));
+                    }
+                }
+            }
         }
         return availableMoves;
     }
