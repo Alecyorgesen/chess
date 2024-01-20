@@ -100,7 +100,8 @@ public class ChessPiece {
                 }
             }
 
-        } else if (type==PieceType.ROOK) {
+        } else
+        if (type==PieceType.ROOK) {
             for (int i = row+1;i<9;i++) {
                 if (isValidCoordinant(i,column)) {
                     chessPiece = board.getPiece(i,column);
@@ -157,16 +158,188 @@ public class ChessPiece {
                     }
                 } else {break;}
             }
-        } else if (type==PieceType.KNIGHT) {
-
-        } else if (type==PieceType.BISHOP) {
-
-        } else if (type==PieceType.QUEEN) {
-
-        } else if (type==PieceType.KING) {
-
+        } else
+        if (type==PieceType.KNIGHT) {
+            int[][] listOfCoordinants = {{2,1},{1,2},{-1,2},{-2,1},{-2,-1},{-1,-2},{1,-2},{2,-1}};
+            for (int[] coordinants : listOfCoordinants) {
+                int rowPos = coordinants[0]+row;
+                int colPos = coordinants[1]+column;
+                if (isValidCoordinant(rowPos,colPos)) {
+                    chessPiece = board.getPiece(rowPos,colPos);
+                    if (chessPiece == null) {
+                        endPosition = new ChessPosition(rowPos, colPos);
+                        availableMoves.add(new ChessMove(myPosition, endPosition, null));
+                    } else if (chessPiece.getTeamColor() != this.getTeamColor()) {
+                        endPosition = new ChessPosition(rowPos, colPos);
+                        availableMoves.add(new ChessMove(myPosition, endPosition, null));
+                    }
+                }
+            }
+        } else
+        if (type==PieceType.BISHOP) {
+            for (int i = 1;i<7;i++) {
+                if (!isValidCoordinant(row+i,column+i)) {break;}
+                chessPiece = board.getPiece(row+i,column+i);
+                endPosition = new ChessPosition(row+i,column+i);
+                if (chessPiece == null) {
+                    availableMoves.add(new ChessMove(myPosition,endPosition,null));
+                } else if (chessPiece.getTeamColor() != this.getTeamColor()) {
+                    availableMoves.add(new ChessMove(myPosition,endPosition,null));
+                    break;
+                } else {break;}
+            }
+            for (int i = 1;i<7;i++) {
+                if (!isValidCoordinant(row-i,column+i)) {break;}
+                chessPiece = board.getPiece(row-i,column+i);
+                endPosition = new ChessPosition(row-i,column+i);
+                if (chessPiece == null) {
+                    availableMoves.add(new ChessMove(myPosition,endPosition,null));
+                } else if (chessPiece.getTeamColor() != this.getTeamColor()) {
+                    availableMoves.add(new ChessMove(myPosition,endPosition,null));
+                    break;
+                } else {break;}
+            }
+            for (int i = 1;i<7;i++) {
+                if (!isValidCoordinant(row-i,column-i)) {break;}
+                chessPiece = board.getPiece(row-i,column-i);
+                endPosition = new ChessPosition(row-i,column-i);
+                if (chessPiece == null) {
+                    availableMoves.add(new ChessMove(myPosition,endPosition,null));
+                } else if (chessPiece.getTeamColor() != this.getTeamColor()) {
+                    availableMoves.add(new ChessMove(myPosition,endPosition,null));
+                    break;
+                } else {break;}
+            }
+            for (int i = 1;i<7;i++) {
+                if (!isValidCoordinant(row+i,column-i)) {break;}
+                chessPiece = board.getPiece(row+i,column-i);
+                endPosition = new ChessPosition(row+i,column-i);
+                if (chessPiece == null) {
+                    availableMoves.add(new ChessMove(myPosition,endPosition,null));
+                } else if (chessPiece.getTeamColor() != this.getTeamColor()) {
+                    availableMoves.add(new ChessMove(myPosition,endPosition,null));
+                    break;
+                } else {break;}
+            }
+        } else
+        if (type==PieceType.QUEEN) {
+            for (int i = row+1;i<9;i++) {
+                if (isValidCoordinant(i,column)) {
+                    chessPiece = board.getPiece(i,column);
+                    endPosition = new ChessPosition(i, column);
+                    if (chessPiece == null) {
+                        availableMoves.add(new ChessMove(myPosition, endPosition, null));
+                    } else if (chessPiece.getTeamColor() != this.getTeamColor()) {
+                        availableMoves.add(new ChessMove(myPosition, endPosition, null));
+                        break;
+                    } else {
+                        break;
+                    }
+                } else {break;}
+            }
+            for (int i = row-1;i>0;i--) {
+                if (isValidCoordinant(i,column)) {
+                    chessPiece = board.getPiece(i,column);
+                    endPosition = new ChessPosition(i, column);
+                    if (chessPiece == null) {
+                        availableMoves.add(new ChessMove(myPosition, endPosition, null));
+                    } else if (chessPiece.getTeamColor() != this.getTeamColor()) {
+                        availableMoves.add(new ChessMove(myPosition, endPosition, null));
+                        break;
+                    } else {
+                        break;
+                    }
+                } else {break;}
+            }
+            for (int i = column+1;i<9;i++) {
+                if (isValidCoordinant(row,i)) {
+                    chessPiece = board.getPiece(row,i);
+                    endPosition = new ChessPosition(row,i);
+                    if (chessPiece == null) {
+                        availableMoves.add(new ChessMove(myPosition, endPosition, null));
+                    } else if (chessPiece.getTeamColor() != this.getTeamColor()) {
+                        availableMoves.add(new ChessMove(myPosition, endPosition, null));
+                        break;
+                    } else {
+                        break;
+                    }
+                } else {break;}
+            }
+            for (int i = column-1;i>0;i--) {
+                if (isValidCoordinant(row,i)) {
+                    chessPiece = board.getPiece(row,i);
+                    endPosition = new ChessPosition(row,i);
+                    if (chessPiece == null) {
+                        availableMoves.add(new ChessMove(myPosition, endPosition, null));
+                    } else if (chessPiece.getTeamColor() != this.getTeamColor()) {
+                        availableMoves.add(new ChessMove(myPosition, endPosition, null));
+                        break;
+                    } else {
+                        break;
+                    }
+                } else {break;}
+            }
+            for (int i = 1;i<7;i++) {
+                if (!isValidCoordinant(row+i,column+i)) {break;}
+                chessPiece = board.getPiece(row+i,column+i);
+                endPosition = new ChessPosition(row+i,column+i);
+                if (chessPiece == null) {
+                    availableMoves.add(new ChessMove(myPosition,endPosition,null));
+                } else if (chessPiece.getTeamColor() != this.getTeamColor()) {
+                    availableMoves.add(new ChessMove(myPosition,endPosition,null));
+                    break;
+                } else {break;}
+            }
+            for (int i = 1;i<7;i++) {
+                if (!isValidCoordinant(row-i,column+i)) {break;}
+                chessPiece = board.getPiece(row-i,column+i);
+                endPosition = new ChessPosition(row-i,column+i);
+                if (chessPiece == null) {
+                    availableMoves.add(new ChessMove(myPosition,endPosition,null));
+                } else if (chessPiece.getTeamColor() != this.getTeamColor()) {
+                    availableMoves.add(new ChessMove(myPosition,endPosition,null));
+                    break;
+                } else {break;}
+            }
+            for (int i = 1;i<7;i++) {
+                if (!isValidCoordinant(row-i,column-i)) {break;}
+                chessPiece = board.getPiece(row-i,column-i);
+                endPosition = new ChessPosition(row-i,column-i);
+                if (chessPiece == null) {
+                    availableMoves.add(new ChessMove(myPosition,endPosition,null));
+                } else if (chessPiece.getTeamColor() != this.getTeamColor()) {
+                    availableMoves.add(new ChessMove(myPosition,endPosition,null));
+                    break;
+                } else {break;}
+            }
+            for (int i = 1;i<7;i++) {
+                if (!isValidCoordinant(row+i,column-i)) {break;}
+                chessPiece = board.getPiece(row+i,column-i);
+                endPosition = new ChessPosition(row+i,column-i);
+                if (chessPiece == null) {
+                    availableMoves.add(new ChessMove(myPosition,endPosition,null));
+                } else if (chessPiece.getTeamColor() != this.getTeamColor()) {
+                    availableMoves.add(new ChessMove(myPosition,endPosition,null));
+                    break;
+                } else {break;}
+            }
+        } else
+        if (type==PieceType.KING) {
+//            for (int i = -1;i<2;i++) {
+//                for (int j = -1;j<2;i++) {
+//                    if (i==0 && j==0) {continue;}
+//                    if (!isValidCoordinant(row+i,column+i)) {continue;}
+//                    chessPiece = board.getPiece(row+i,column+j);
+//                    endPosition = new ChessPosition(row+i,column+i);
+//                    if (chessPiece == null) {
+//                        availableMoves.add(new ChessMove(myPosition,endPosition,null));
+//                    } else if (chessPiece.getTeamColor() != this.getTeamColor()) {
+//                        availableMoves.add(new ChessMove(myPosition,endPosition,null));
+//                    }
+//                }
+//            }
         }
-        return availableMoves; //something
+        return availableMoves;
     }
 
     private boolean isValidCoordinant(int row, int column) {
