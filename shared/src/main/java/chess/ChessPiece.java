@@ -102,7 +102,60 @@ public class ChessPiece {
 
         } else if (type==PieceType.ROOK) {
             for (int i = row+1;i<9;i++) {
-
+                if (isValidCoordinant(i,column)) {
+                    chessPiece = board.getPiece(i,column);
+                    endPosition = new ChessPosition(i, column);
+                    if (chessPiece == null) {
+                        availableMoves.add(new ChessMove(myPosition, endPosition, null));
+                    } else if (chessPiece.getTeamColor() != this.getTeamColor()) {
+                        availableMoves.add(new ChessMove(myPosition, endPosition, null));
+                        break;
+                    } else {
+                        break;
+                    }
+                } else {break;}
+            }
+            for (int i = row-1;i>0;i--) {
+                if (isValidCoordinant(i,column)) {
+                    chessPiece = board.getPiece(i,column);
+                    endPosition = new ChessPosition(i, column);
+                    if (chessPiece == null) {
+                        availableMoves.add(new ChessMove(myPosition, endPosition, null));
+                    } else if (chessPiece.getTeamColor() != this.getTeamColor()) {
+                        availableMoves.add(new ChessMove(myPosition, endPosition, null));
+                        break;
+                    } else {
+                        break;
+                    }
+                } else {break;}
+            }
+            for (int i = column+1;i<9;i++) {
+                if (isValidCoordinant(row,i)) {
+                    chessPiece = board.getPiece(row,i);
+                    endPosition = new ChessPosition(row,i);
+                    if (chessPiece == null) {
+                        availableMoves.add(new ChessMove(myPosition, endPosition, null));
+                    } else if (chessPiece.getTeamColor() != this.getTeamColor()) {
+                        availableMoves.add(new ChessMove(myPosition, endPosition, null));
+                        break;
+                    } else {
+                        break;
+                    }
+                } else {break;}
+            }
+            for (int i = column-1;i>0;i--) {
+                if (isValidCoordinant(row,i)) {
+                    chessPiece = board.getPiece(row,i);
+                    endPosition = new ChessPosition(row,i);
+                    if (chessPiece == null) {
+                        availableMoves.add(new ChessMove(myPosition, endPosition, null));
+                    } else if (chessPiece.getTeamColor() != this.getTeamColor()) {
+                        availableMoves.add(new ChessMove(myPosition, endPosition, null));
+                        break;
+                    } else {
+                        break;
+                    }
+                } else {break;}
             }
         } else if (type==PieceType.KNIGHT) {
 
