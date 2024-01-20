@@ -63,7 +63,14 @@ public class ChessPiece {
             if (this.pieceColor == ChessGame.TeamColor.BLACK) {direction = -1;} //This line tells it to go the opposite way if black.
             if (board.getPiece(row + direction, column) == null) {
                 endPosition = new ChessPosition(row + direction, column);
-                availableMoves.add(new ChessMove(myPosition,endPosition,null));
+                if (row + direction == 1 || row + direction == 8) {
+                    PieceType[] promotionTypeArray = {PieceType.QUEEN,PieceType.ROOK,PieceType.BISHOP,PieceType.KNIGHT};
+                    for (PieceType type : promotionTypeArray) {
+                        availableMoves.add(new ChessMove(myPosition,endPosition,type));
+                    }
+                } else {
+                    availableMoves.add(new ChessMove(myPosition,endPosition,null));
+                }
                 if (row == 2 || row == 7) {
                     if (isValidCoordinant(row + direction*2, column)) {
                         if (board.getPiece(row + direction*2, column) == null) {
@@ -72,7 +79,7 @@ public class ChessPiece {
                         }
                     }
                 }
-            }
+            } // hey, u r cool btw
             int[] attackPosititons = {1, -1};
             for (int i : attackPosititons) {
                 if (isValidCoordinant(row + direction, column + i)) {
@@ -80,15 +87,23 @@ public class ChessPiece {
                     if (chessPiece != null) {
                         if (chessPiece.getTeamColor() != this.getTeamColor()) {
                             endPosition = new ChessPosition(row + direction, column + i);
-                            availableMoves.add(new ChessMove(myPosition, endPosition, null));
+                            if (row + direction == 1 || row + direction == 8) {
+                                PieceType[] promotionTypeArray = {PieceType.QUEEN,PieceType.ROOK,PieceType.BISHOP,PieceType.KNIGHT};
+                                for (PieceType type : promotionTypeArray) {
+                                    availableMoves.add(new ChessMove(myPosition,endPosition,type));
+                                }
+                            } else {
+                                availableMoves.add(new ChessMove(myPosition,endPosition,null));
+                            }
                         }
                     }
                 }
             }
 
-
         } else if (type==PieceType.ROOK) {
+            for (int i = row+1;i<9;i++) {
 
+            }
         } else if (type==PieceType.KNIGHT) {
 
         } else if (type==PieceType.BISHOP) {
