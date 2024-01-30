@@ -11,7 +11,7 @@ import java.util.Arrays;
 public class ChessBoard {
     private ChessPiece[][] squares = new ChessPiece[9][9];
     public ChessBoard() {
-
+        this.resetBoard();
     }
 
     /**
