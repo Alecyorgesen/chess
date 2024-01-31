@@ -91,11 +91,12 @@ public class ChessGame {
                     if (possibleMove == move) {
                         board.setPiece(move.getEndPosition(),piece);
                         board.setPiece(move.getStartPosition(),null);
-                        break;
+                        return;
                     }
                 }
             }
         }
+        throw new InvalidMoveException("Move is invalid.");
     }
 
     /**
