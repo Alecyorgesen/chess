@@ -73,11 +73,12 @@ public class ChessBoard implements Cloneable {
     @Override
     protected Object clone() throws CloneNotSupportedException {
         ChessBoard clone = (ChessBoard) super.clone();
+        clone.squares = new ChessPiece[9][9];
         for (int i = 1; i<9; i++) {
             for (int j = 1; j<9; j++) {
                 if (this.squares[i][j] != null) {
                     ChessPiece piece = this.squares[i][j];
-                    this.squares[i][j] = new ChessPiece(piece.getTeamColor(),piece.getPieceType());
+                    clone.squares[i][j] = new ChessPiece(piece.getTeamColor(),piece.getPieceType());
                 }
             }
         }
