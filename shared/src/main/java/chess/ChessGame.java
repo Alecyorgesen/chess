@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -10,6 +11,7 @@ import java.util.Collection;
  */
 public class ChessGame {
     TeamColor teamTurn;
+    ChessBoard board = new ChessBoard();
     public ChessGame() {
         teamTurn = TeamColor.WHITE;
     }
@@ -46,7 +48,13 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+//        ChessPiece piece = board.getPiece(startPosition);
+//        HashSet<ChessMove> validMoves = new HashSet<>();
+//
+//        if (piece != null) {
+//
+//        }
+        return null;
     }
 
     /**
@@ -56,7 +64,9 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        ChessPiece piece = board.getPiece(move.getStartPosition());
+//        if
+        board.setPiece(move.getEndPosition(),piece);
     }
 
     /**
@@ -66,7 +76,26 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                ChessPosition position = new ChessPosition(i,j);
+                ChessPiece piece = board.getPiece(position);
+                ChessPiece targetPiece;
+                if (piece != null) {
+                    if (piece.getTeamColor() != teamColor) {
+                        for (ChessMove move : piece.pieceMoves(board,position)) {
+                            targetPiece = board.getPiece(move.getEndPosition());
+                            if (targetPiece != null) {
+                                if (targetPiece.getPieceType() == ChessPiece.PieceType.KING) {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**
