@@ -50,21 +50,13 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = board.getPiece(startPosition);
         HashSet<ChessMove> validMoves = new HashSet<>();
-        HashSet<ChessMove> availableMoves;
-
         if (piece != null) {
-            availableMoves = (HashSet<ChessMove>) piece.pieceMoves(board,startPosition);
+            HashSet<ChessMove> availableMoves = (HashSet<ChessMove>) piece.pieceMoves(board,startPosition);
             for (ChessMove move : availableMoves) {
-                ChessBoard boardCopy;
-                try {
-                    boardCopy = (ChessBoard) board.clone();
-                } catch (CloneNotSupportedException e) {
-                    throw new RuntimeException("Board didn't clone correctly in validMoves method");
-                }
+                ChessBoard boardCopy = this.boardClone();
                 ChessPiece pieceCopy = boardCopy.getPiece(move.getStartPosition());
-                boardCopy.setPiece(move.getEndPosition(), pieceCopy);
-                boardCopy.setPiece(move.getStartPosition(), null);
-                if (!isInCheck(getTeamTurn(),boardCopy)) {
+                this.forceMove(boardCopy,pieceCopy,move);
+                if (!isInCheck(this.getTeamTurn(),boardCopy)) {
                     validMoves.add(move);
                 }
             }
@@ -76,7 +68,26 @@ public class ChessGame {
         }
         return null;
     }
-
+    private void forceMove(ChessBoard board, ChessPiece piece, ChessMove move) {
+        ChessPiece.PieceType type = move.getPromotionPiece();
+        ChessPiece promotedPiece;
+        if (type != null) {
+            promotedPiece = new ChessPiece(piece.getTeamColor(), type);
+            board.setPiece(move.getEndPosition(), promotedPiece);
+        } else {
+            board.setPiece(move.getEndPosition(), piece);
+        }
+        board.removePiece(move.getStartPosition());
+    }
+    private ChessBoard boardClone() {
+        ChessBoard boardClone;
+        try {
+            boardClone = (ChessBoard) board.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("Board didn't clone correctly in validMoves method");
+        }
+        return boardClone;
+    }
     /**
      * Makes a move in a chess game
      *
@@ -88,15 +99,20 @@ public class ChessGame {
         if (piece != null) {
             if (piece.getTeamColor() == teamTurn) {
                 for (ChessMove possibleMove : this.validMoves(move.getStartPosition())) {
-                    if (possibleMove == move) {
-                        board.setPiece(move.getEndPosition(),piece);
+                    if (possibleMove.equals(move)) {
+                        if (move.getPromotionPiece() != null) {
+                            ChessPiece newPiece = new ChessPiece(piece.getTeamColor(),move.getPromotionPiece());
+                            board.setPiece(move.getEndPosition(),newPiece);
+                        } else {
+                            board.setPiece(move.getEndPosition(),piece);
+                        }
                         board.setPiece(move.getStartPosition(),null);
                         return;
                     }
                 }
             }
         }
-        throw new InvalidMoveException("Move is invalid.");
+//        throw new InvalidMoveException("Move is invalid.");
     }
 
     /**
