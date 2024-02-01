@@ -60,13 +60,8 @@ public class ChessGame {
                     validMoves.add(move);
                 }
             }
-            if (validMoves.isEmpty()) {
-                return null;
-            } else {
-                return validMoves;
-            }
         }
-        return null;
+        return validMoves;
     }
     private void forceMove(ChessBoard board, ChessPiece piece, ChessMove move) {
         ChessPiece.PieceType type = move.getPromotionPiece();
@@ -180,7 +175,7 @@ public class ChessGame {
                     ChessPiece piece = board.getPiece(position);
                     if (piece != null) {
                         if (piece.getTeamColor() == teamColor) {
-                            if (this.validMoves(position) != null) {
+                            if (!this.validMoves(position).isEmpty()) {
                                 return false;
                             }
                         }
@@ -206,7 +201,7 @@ public class ChessGame {
                 ChessPiece piece = board.getPiece(position);
                 if (piece != null) {
                     if (piece.getTeamColor() == teamColor) {
-                        if (this.validMoves(position) != null) {
+                        if (!this.validMoves(position).isEmpty()) {
                             return false;
                         }
                     }
