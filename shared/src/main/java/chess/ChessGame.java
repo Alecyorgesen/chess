@@ -60,8 +60,9 @@ public class ChessGame {
                     validMoves.add(move);
                 }
             }
+            return validMoves;
         }
-        return validMoves;
+        return null;
     }
     private void forceMove(ChessBoard board, ChessPiece piece, ChessMove move) {
         ChessPiece.PieceType type = move.getPromotionPiece();
