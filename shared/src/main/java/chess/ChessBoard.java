@@ -38,7 +38,9 @@ public class ChessBoard implements Cloneable {
     public void setPiece(ChessPosition position, ChessPiece piece) {
         this.squares[position.getRow()][position.getColumn()] = piece;
     }
-
+    public void removePiece(ChessPosition position) {
+        this.squares[position.getRow()][position.getColumn()] = null;
+    }
     /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
