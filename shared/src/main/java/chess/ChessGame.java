@@ -56,7 +56,7 @@ public class ChessGame {
                 ChessBoard boardCopy = this.boardClone();
                 ChessPiece pieceCopy = boardCopy.getPiece(move.getStartPosition());
                 this.forceMove(boardCopy,pieceCopy,move);
-                if (!isInCheck(this.getTeamTurn(),boardCopy)) {
+                if (!isInCheck(piece.getTeamColor(),boardCopy)) {
                     validMoves.add(move);
                 }
             }
@@ -70,9 +70,8 @@ public class ChessGame {
     }
     private void forceMove(ChessBoard board, ChessPiece piece, ChessMove move) {
         ChessPiece.PieceType type = move.getPromotionPiece();
-        ChessPiece promotedPiece;
         if (type != null) {
-            promotedPiece = new ChessPiece(piece.getTeamColor(), type);
+            ChessPiece promotedPiece = new ChessPiece(piece.getTeamColor(), type);
             board.setPiece(move.getEndPosition(), promotedPiece);
         } else {
             board.setPiece(move.getEndPosition(), piece);
@@ -100,21 +99,22 @@ public class ChessGame {
             if (piece.getTeamColor() == teamTurn) {
                 for (ChessMove possibleMove : this.validMoves(move.getStartPosition())) {
                     if (possibleMove.equals(move)) {
-                        if (move.getPromotionPiece() != null) {
-                            ChessPiece newPiece = new ChessPiece(piece.getTeamColor(),move.getPromotionPiece());
-                            board.setPiece(move.getEndPosition(),newPiece);
-                        } else {
-                            board.setPiece(move.getEndPosition(),piece);
-                        }
-                        board.setPiece(move.getStartPosition(),null);
+                        this.forceMove(this.board,piece,move);
+                        switchTurn();
                         return;
                     }
                 }
             }
         }
-//        throw new InvalidMoveException("Move is invalid.");
+        throw new InvalidMoveException("Move is invalid.");
     }
-
+    private void switchTurn() {
+        if (this.teamTurn == TeamColor.WHITE) {
+            this.teamTurn = TeamColor.BLACK;
+        } else {
+            this.teamTurn = TeamColor.WHITE;
+        }
+    }
     /**
      * Determines if the given team is in check
      *
