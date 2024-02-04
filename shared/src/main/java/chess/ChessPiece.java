@@ -14,9 +14,11 @@ import java.util.Objects;
 public class ChessPiece {
     ChessGame.TeamColor pieceColor;
     ChessPiece.PieceType type;
+    boolean hasDoubleMoved;
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
+        this.hasDoubleMoved = false;
     }
 
     /**
