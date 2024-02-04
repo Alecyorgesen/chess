@@ -97,6 +97,7 @@ public class ChessGame {
                     if (possibleMove.equals(move)) {
                         this.forceMove(this.board,piece,move);
                         switchTurn();
+                        checkIfDoubleMoved(piece, move);
                         return;
                     }
                 }
@@ -104,6 +105,17 @@ public class ChessGame {
         }
         throw new InvalidMoveException("Move is invalid.");
     }
+    private void checkIfDoubleMoved(ChessPiece piece, ChessMove move) {
+        if (piece.hasDoubleMoved) {
+            piece.hasDoubleMoved = false;
+        }
+        if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+            if (move.getStartPosition().getRow() - move.getEndPosition().getRow() == 2 || move.getStartPosition().getRow() - move.getEndPosition().getRow() == -2) {
+                piece.hasDoubleMoved = true;
+            }
+        }
+    }
+
     private void switchTurn() {
         if (this.teamTurn == TeamColor.WHITE) {
             this.teamTurn = TeamColor.BLACK;
