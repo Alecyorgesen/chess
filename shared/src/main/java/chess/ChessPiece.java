@@ -47,13 +47,6 @@ public class ChessPiece {
         return this.type;
     }
 
-    public boolean isHasDoubleMoved() {
-        return hasDoubleMoved;
-    }
-
-    public void setHasDoubleMoved(boolean hasDoubleMoved) {
-        this.hasDoubleMoved = hasDoubleMoved;
-    }
 
     /**
      * Calculates all the positions a chess piece can move to
