@@ -72,7 +72,19 @@ public class ChessGame {
         } else {
             board.setPiece(move.getEndPosition(), piece);
         }
+        removePawnEnPassant(board, piece, move);
         board.removePiece(move.getStartPosition());
+    }
+    private void removePawnEnPassant(ChessBoard board, ChessPiece piece, ChessMove move) {
+        if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+            ChessPosition position = new ChessPosition(move.getStartPosition().getRow(),move.getEndPosition().getColumn());
+            ChessPiece enemyPiece = board.getPiece(position);
+            if (enemyPiece != null) {
+                if (enemyPiece.hasDoubleMoved) {
+                    board.removePiece(position);
+                }
+            }
+        }
     }
     private ChessBoard boardClone() {
         ChessBoard boardClone;
@@ -96,6 +108,7 @@ public class ChessGame {
                 for (ChessMove possibleMove : this.validMoves(move.getStartPosition())) {
                     if (possibleMove.equals(move)) {
                         this.forceMove(this.board,piece,move);
+                        board.resetHasDoubleMoved(this.teamTurn);
                         switchTurn();
                         checkIfDoubleMoved(piece, move);
                         return;
@@ -106,9 +119,6 @@ public class ChessGame {
         throw new InvalidMoveException("Move is invalid.");
     }
     private void checkIfDoubleMoved(ChessPiece piece, ChessMove move) {
-        if (piece.hasDoubleMoved) {
-            piece.hasDoubleMoved = false;
-        }
         if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
             if (move.getStartPosition().getRow() - move.getEndPosition().getRow() == 2 || move.getStartPosition().getRow() - move.getEndPosition().getRow() == -2) {
                 piece.hasDoubleMoved = true;

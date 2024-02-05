@@ -99,6 +99,14 @@ public class ChessPiece {
                                 availableMoves.add(new ChessMove(myPosition,endPosition,null));
                             }
                         }
+                    } else {
+                        chessPiece = board.getPiece(row, column + i);
+                        if (chessPiece != null) {
+                            if (chessPiece.hasDoubleMoved && chessPiece.getTeamColor() != this.getTeamColor()) {
+                                endPosition = new ChessPosition(row + direction, column + i);
+                                availableMoves.add(new ChessMove(myPosition, endPosition,null));
+                            }
+                        }
                     }
                 }
             }

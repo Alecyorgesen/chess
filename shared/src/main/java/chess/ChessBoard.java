@@ -41,6 +41,18 @@ public class ChessBoard implements Cloneable {
     public void removePiece(ChessPosition position) {
         this.squares[position.getRow()][position.getColumn()] = null;
     }
+    public void resetHasDoubleMoved(ChessGame.TeamColor teamColor) {
+        for (int i=1; i<9; i++) {
+            for (int j=1; j<9; j++) {
+                ChessPiece piece = this.squares[i][j];
+                if (piece != null) {
+                    if (piece.getTeamColor() == teamColor) {
+                        piece.hasDoubleMoved = false;
+                    }
+                }
+            }
+        }
+    }
     /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
