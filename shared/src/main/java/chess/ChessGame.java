@@ -56,6 +56,14 @@ public class ChessGame {
                 ChessBoard boardCopy = this.boardClone();
                 ChessPiece pieceCopy = boardCopy.getPiece(move.getStartPosition());
                 this.forceMove(boardCopy,pieceCopy,move);
+                if (pieceCopy.getPieceType() == ChessPiece.PieceType.KING) {
+                    if (move.getStartPosition().getColumn()-move.getEndPosition().getColumn() == 2 || move.getStartPosition().getColumn()-move.getEndPosition().getColumn() == -2) {
+                        if (canCastle(pieceCopy, boardCopy, move)) {
+                            validMoves.add(move);
+                            continue;
+                        } else {continue;}
+                    }
+                }
                 if (!isInCheck(piece.getTeamColor(),boardCopy)) {
                     validMoves.add(move);
                 }
@@ -63,6 +71,42 @@ public class ChessGame {
             return validMoves;
         }
         return null;
+    }
+    private boolean canCastle(ChessPiece king, ChessBoard board, ChessMove move) {
+        for (int i=1; i<9; i++) {
+            for (int j=1; j<9; j++) {
+                if (move.getEndPosition().getColumn()-move.getStartPosition().getColumn() == 2) {
+                    ChessPosition posRight1 = new ChessPosition(move.getStartPosition().getRow(),move.getStartPosition().getColumn()+1);
+                    ChessPosition posRight2 = new ChessPosition(move.getStartPosition().getRow(),move.getStartPosition().getColumn()+2);
+                    ChessPosition position = new ChessPosition(i,j);
+                    ChessPiece enemyPiece = board.getPiece(position);
+                    if (enemyPiece != null) {
+                        if (enemyPiece.getTeamColor() != king.getTeamColor()) {
+                            for (ChessMove chessMove : enemyPiece.pieceMoves(board,position)) {
+                                if (chessMove.getEndPosition().equals(move.getStartPosition()) || chessMove.getEndPosition().equals(posRight1) || chessMove.getEndPosition().equals(posRight2)) {
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                } else if (move.getEndPosition().getColumn()-move.getStartPosition().getColumn() == -2) {
+                    ChessPosition posLeft1 = new ChessPosition(move.getStartPosition().getRow(),move.getStartPosition().getColumn()-1);
+                    ChessPosition posLeft2 = new ChessPosition(move.getStartPosition().getRow(),move.getStartPosition().getColumn()-2);
+                    ChessPosition position = new ChessPosition(i,j);
+                    ChessPiece enemyPiece = board.getPiece(position);
+                    if (enemyPiece != null) {
+                        if (enemyPiece.getTeamColor() != king.getTeamColor()) {
+                            for (ChessMove chessMove : enemyPiece.pieceMoves(board,position)) {
+                                if (chessMove.getEndPosition().equals(move.getStartPosition()) || chessMove.getEndPosition().equals(posLeft1) || chessMove.getEndPosition().equals(posLeft2)) {
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return true;
     }
     private void forceMove(ChessBoard board, ChessPiece piece, ChessMove move) {
         ChessPiece.PieceType type = move.getPromotionPiece();
@@ -72,8 +116,22 @@ public class ChessGame {
         } else {
             board.setPiece(move.getEndPosition(), piece);
         }
+        moveRookCastle(board, piece, move);
         removePawnEnPassant(board, piece, move);
         board.removePiece(move.getStartPosition());
+    }
+    private void moveRookCastle(ChessBoard board, ChessPiece piece, ChessMove move) {
+        if (piece.getPieceType() == ChessPiece.PieceType.KING) {
+            if (move.getEndPosition().getColumn() - move.getStartPosition().getColumn() == 2) {
+                ChessPiece rook = board.getPiece(move.getStartPosition().getRow(),8);
+                board.setPiece(new ChessPosition(move.getStartPosition().getRow(),6), rook);
+                board.removePiece(new ChessPosition(move.getStartPosition().getRow(),8));
+            } else if (move.getEndPosition().getColumn() - move.getStartPosition().getColumn() == -2) {
+                ChessPiece rook = board.getPiece(move.getStartPosition().getRow(),1);
+                board.setPiece(new ChessPosition(move.getStartPosition().getRow(),4), rook);
+                board.removePiece(new ChessPosition(move.getStartPosition().getRow(),1));
+            }
+        }
     }
     private void removePawnEnPassant(ChessBoard board, ChessPiece piece, ChessMove move) {
         if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
@@ -108,6 +166,7 @@ public class ChessGame {
                 for (ChessMove possibleMove : this.validMoves(move.getStartPosition())) {
                     if (possibleMove.equals(move)) {
                         this.forceMove(this.board,piece,move);
+                        piece.hasMoved = true;
                         board.resetHasDoubleMoved(this.teamTurn);
                         switchTurn();
                         checkIfDoubleMoved(piece, move);

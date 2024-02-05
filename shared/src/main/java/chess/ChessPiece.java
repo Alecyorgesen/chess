@@ -15,10 +15,12 @@ public class ChessPiece {
     ChessGame.TeamColor pieceColor;
     ChessPiece.PieceType type;
     boolean hasDoubleMoved;
+    boolean hasMoved;
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
         this.hasDoubleMoved = false;
+        this.hasMoved = false;
     }
 
     /**
@@ -346,6 +348,48 @@ public class ChessPiece {
                         availableMoves.add(new ChessMove(myPosition,endPosition,null));
                     } else if (chessPiece.getTeamColor() != this.getTeamColor()) {
                         availableMoves.add(new ChessMove(myPosition,endPosition,null));
+                    }
+                }
+            }
+            if (this.hasMoved == false) {
+                if (isValidCoordinant(row,column) && isValidCoordinant(row,column+1) && isValidCoordinant(row,column+2) && isValidCoordinant(row,column+3)) {
+                    endPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn()+1);
+                    chessPiece = board.getPiece(endPosition);
+                    if (chessPiece == null) {
+                        endPosition = new ChessPosition(myPosition.getRow(),myPosition.getColumn()+2);
+                        chessPiece = board.getPiece(endPosition);
+                        if (chessPiece == null) {
+                            endPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn()+3);
+                            chessPiece = board.getPiece(endPosition);
+                            if (chessPiece != null) {
+                                if (chessPiece.getPieceType() == PieceType.ROOK && chessPiece.hasMoved == false) {
+                                    endPosition = new ChessPosition(myPosition.getRow(),myPosition.getColumn()+2);
+                                    availableMoves.add(new ChessMove(myPosition,endPosition,null));
+                                }
+                            }
+                        }
+                    }
+                }
+                if (isValidCoordinant(row,column) && isValidCoordinant(row,column-1) && isValidCoordinant(row,column-2) && isValidCoordinant(row,column-3) && isValidCoordinant(row,column-4)) {
+                    endPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn()-1);
+                    chessPiece = board.getPiece(endPosition);
+                    if (chessPiece == null) {
+                        endPosition = new ChessPosition(myPosition.getRow(),myPosition.getColumn()-2);
+                        chessPiece = board.getPiece(endPosition);
+                        if (chessPiece == null) {
+                            endPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn()-3);
+                            chessPiece = board.getPiece(endPosition);
+                            if (chessPiece == null) {
+                                endPosition = new ChessPosition((myPosition.getRow()),myPosition.getColumn()-4);
+                                chessPiece = board.getPiece(endPosition);
+                                if (chessPiece != null) {
+                                    if (chessPiece.getPieceType() == PieceType.ROOK && chessPiece.hasMoved == false) {
+                                        endPosition = new ChessPosition(myPosition.getRow(),myPosition.getColumn()-2);
+                                        availableMoves.add(new ChessMove(myPosition,endPosition,null));
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
