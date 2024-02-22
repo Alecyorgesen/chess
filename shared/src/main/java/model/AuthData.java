@@ -1,4 +1,6 @@
 package model;
 
-public class AuthData {
+record AuthData() {
+    static String authToken;
+    static String username;
 }
