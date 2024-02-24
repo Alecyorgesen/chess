@@ -1,7 +1,4 @@
 package model;
 
-record UserData() {
-    static String username;
-    static String passWord;
-    static String email;
+public record UserData(String username, String passWord, String email) {
 }
