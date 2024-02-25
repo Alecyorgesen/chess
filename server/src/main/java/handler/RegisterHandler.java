@@ -1,8 +1,7 @@
 package handler;
 
 import com.google.gson.Gson;
-import org.eclipse.jetty.server.Authentication;
-import response.RegisterResponse;
+import response.Response;
 import service.*;
 import spark.*;
 import model.*;
@@ -12,8 +11,9 @@ public class RegisterHandler {
         this.registerService = new RegisterService();
     }
 
-    public RegisterResponse register(Request request, Response response) {
+    public Object register(Request request, spark.Response response) {
         var userData = new Gson().fromJson(request.body(), UserData.class);
-        return registerService.register(userData);
+        AuthData authData = registerService.register(userData);
+        return new Gson().toJson(authData);
     }
 }
