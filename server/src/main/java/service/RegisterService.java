@@ -3,7 +3,7 @@ package service;
 import dataAccess.*;
 import model.AuthData;
 import model.UserData;
-import response.Response;
+import message.ErrorMessage;
 
 import java.util.UUID;
 
@@ -16,10 +16,10 @@ public class RegisterService {
         authDAO = new AuthMemoryDAO();
     }
 
-    public AuthData register(UserData userData) {
+    public Object register(UserData userData) {
         String existingUserName = getUsername(userData.username());
         if (existingUserName != null) {
-            return null;
+            return new ErrorMessage("Error: already taken");
         }
         userDAO.createUser(userData.username(), userData.password(), userData.password());
         authDAO.createAuth(userData.username());
