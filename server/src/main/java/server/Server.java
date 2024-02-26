@@ -3,12 +3,12 @@ import handler.*;
 import spark.*;
 
 public class Server {
-    public final RegisterHandler registerHandler;
-    public final ClearHandler clearHandler;
+    public final RegisterHandler registerHandler = new RegisterHandler();
+    public final ClearHandler clearHandler = new ClearHandler();
+    public final LoginHandler loginHandler = new LoginHandler();
+    public final LogoutHandler logoutHandler = new LogoutHandler();
 
     public Server() {
-        registerHandler = new RegisterHandler();
-        clearHandler = new ClearHandler();
     }
 
     public int run(int desiredPort) {
@@ -18,8 +18,10 @@ public class Server {
 
         // Register your endpoints and handle exceptions here.
 
-//        Spark.get("/one", (req, res) -> {System.out.println("get"); return 1;});
+//        Spark.get("/", (req, res) -> {System.out.println("get"); return 1;});
         Spark.post("/user", registerHandler::register);
+        Spark.post("/session", loginHandler::login);
+        Spark.delete("/session", );
         Spark.delete("/db", clearHandler::clear);
         Spark.awaitInitialization();
         System.out.println("Server running on port 8080");

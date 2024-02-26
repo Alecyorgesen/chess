@@ -19,10 +19,10 @@ public class ClearHandler {
         try {
             clearService.clear();
             response.status(200);
-            return null;
-        } catch (DataAccessException exception) {
+            return "{}";
+        } catch (Exception exception) {
             response.status(500);
-            return new ErrorMessage("Error: description");
+            return new ErrorMessage(exception.getMessage());
         }
     }
 }

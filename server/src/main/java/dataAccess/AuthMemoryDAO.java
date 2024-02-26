@@ -14,6 +14,7 @@ public class AuthMemoryDAO implements AuthDAO {
     public void clear() {
         data.clear();
     }
+    @Override
     public AuthData getAuth(String username) {
         for (AuthData authData : data) {
             if (authData.username().equals(username)) {
@@ -22,8 +23,11 @@ public class AuthMemoryDAO implements AuthDAO {
         }
         return null;
     }
-    public void createAuth(String username) {
+    @Override
+    public AuthData createAuth(String username) {
         String authToken = UUID.randomUUID().toString();
-        new AuthData(authToken, username);
+        AuthData authData = new AuthData(authToken, username);
+        data.add(authData);
+        return authData;
     }
 }
