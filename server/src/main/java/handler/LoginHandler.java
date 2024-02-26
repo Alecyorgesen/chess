@@ -25,7 +25,8 @@ public class LoginHandler {
             response.status(401);
             return new Gson().toJson(new ErrorMessage(exception.getMessage()));
         } catch (Exception exception) {
-            return new ErrorMessage(exception.getMessage());
+            response.status(500);
+            return new Gson().toJson(new ErrorMessage(exception.getMessage()));
         }
     }
 }

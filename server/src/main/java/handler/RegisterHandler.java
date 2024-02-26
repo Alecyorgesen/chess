@@ -26,6 +26,7 @@ public class RegisterHandler {
             response.status(403);
             return new Gson().toJson(new ErrorMessage(exception.getMessage()));
         } catch (Exception exception) {
+            response.status(500);
             return new Gson().toJson(new ErrorMessage(exception.getMessage()));
         }
     }

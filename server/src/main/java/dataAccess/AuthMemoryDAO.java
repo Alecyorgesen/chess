@@ -30,4 +30,17 @@ public class AuthMemoryDAO implements AuthDAO {
         data.add(authData);
         return authData;
     }
+    @Override
+    public void deleteAuth(String authToken) {
+        data.removeIf(authData -> authData.authToken().equals(authToken));
+    }
+    @Override
+    public AuthData getAuthUsingAuth(String authToken) {
+        for (AuthData authData : data) {
+            if (authData.authToken().equals(authToken)) {
+                return authData;
+            }
+        }
+        return null;
+    }
 }
