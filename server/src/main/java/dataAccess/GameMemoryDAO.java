@@ -19,11 +19,34 @@ public class GameMemoryDAO implements GameDAO {
 
     @Override
     public GameData createGame(String gameName) {
-        return new GameData(currentGameID, null, null, gameName, new ChessGame());
+        GameData newGame = new GameData(currentGameID, null, null, gameName, new ChessGame());
+        data.add(newGame);
+        currentGameID += 1;
+        return newGame;
     }
 
     @Override
     public List<GameData> listGames() {
         return data;
+    }
+
+    @Override
+    public GameData getGame(int gameID) {
+        for (GameData gameData : data) {
+            return gameData;
+        }
+        return null;
+    }
+
+    @Override
+    public void updateGame(int gameID, String whiteUsername, String blackUsername, String gameName, ChessGame updatedGame) {
+        GameData oldGame = null;
+        for (GameData gameData : data) {
+            if (gameData.gameId() == gameID) {
+                oldGame = gameData;
+            }
+        }
+        data.remove(oldGame);
+        data.add(new GameData(gameID, whiteUsername, blackUsername, gameName, updatedGame));
     }
 }

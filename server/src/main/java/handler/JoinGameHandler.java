@@ -1,28 +1,33 @@
 package handler;
 
 import com.google.gson.Gson;
+import error.AlreadyTakenException;
 import error.BadRequestException;
 import error.UnauthorizedException;
+import message.ColorAndGameID;
 import message.ErrorMessage;
-import message.GameID;
-import model.GameData;
-import service.CreateGameService;
+import model.UserData;
+import service.JoinGameService;
 import spark.Request;
 import spark.Response;
 
-public class CreateGameHandler {
-    public static final CreateGameService createGameService = new CreateGameService();
-    public Object createGame(Request request, Response response) {
+public class JoinGameHandler {
+    JoinGameService joinGameService = new JoinGameService();
+
+    public Object joinGame(Request request, Response response) {
         try {
-            String gameName = new Gson().toJson(request.body(), String.class);
-            int gameId = createGameService.createGame(request.headers("Authorization"), gameName);
+            ColorAndGameID colorAndGameID = new Gson().fromJson(request.body(), ColorAndGameID.class);
+            joinGameService.joinGame(request.headers("Authorization"), colorAndGameID);
             response.status(200);
-            return new Gson().toJson(new GameID(gameId));
+            return "{}";
         } catch (BadRequestException exception) {
             response.status(400);
             return new Gson().toJson(new ErrorMessage(exception.getMessage()));
         } catch (UnauthorizedException exception) {
             response.status(401);
+            return new Gson().toJson(new ErrorMessage(exception.getMessage()));
+        } catch (AlreadyTakenException exception) {
+            response.status(403);
             return new Gson().toJson(new ErrorMessage(exception.getMessage()));
         } catch (Exception exception) {
             response.status(500);
