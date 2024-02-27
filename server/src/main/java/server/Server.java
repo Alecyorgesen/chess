@@ -8,6 +8,7 @@ public class Server {
     public final LoginHandler loginHandler = new LoginHandler();
     public final LogoutHandler logoutHandler = new LogoutHandler();
     public final ListGamesHandler listGamesHandler = new ListGamesHandler();
+public final CreateGameHandler createGameHandler = new CreateGameHandler();
 
     public Server() {
     }
@@ -24,6 +25,7 @@ public class Server {
         Spark.post("/session", loginHandler::login);
         Spark.delete("/session", logoutHandler::logout);
         Spark.get("/game", listGamesHandler::listGames);
+        Spark.post("/game", createGameHandler::createGame);
         Spark.delete("/db", clearHandler::clear);
         Spark.awaitInitialization();
         System.out.println("Server running on port 8080");
