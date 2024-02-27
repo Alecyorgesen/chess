@@ -18,7 +18,7 @@ public class RegisterService {
         authDAO = new AuthMemoryDAO();
     }
 
-    public Object register(UserData userData) throws AlreadyTakenException, BadRequestException {
+    public AuthData register(UserData userData) throws AlreadyTakenException, BadRequestException {
         if (userData.username() == null || userData.email() == null || userData.password() == null) {
             throw new BadRequestException("Error: bad request");
         }

@@ -46,7 +46,7 @@ public class GameMemoryDAO implements GameDAO {
                 oldGame = gameData;
             }
         }
-        data.remove(oldGame);
-        data.add(new GameData(gameID, whiteUsername, blackUsername, gameName, updatedGame));
+        int index = data.indexOf(oldGame);
+        data.set(index, new GameData(gameID, whiteUsername, blackUsername, gameName, updatedGame));
     }
 }

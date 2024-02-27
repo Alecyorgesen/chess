@@ -3,13 +3,10 @@ package handler;
 import com.google.gson.Gson;
 import error.UnauthorizedException;
 import message.ErrorMessage;
-import message.Games;
-import model.GameData;
+import message.ListGamesResponse;
 import service.ListGamesService;
 import spark.Request;
 import spark.Response;
-
-import java.util.List;
 
 public class ListGamesHandler {
     public static final ListGamesService listGamesService = new ListGamesService();
@@ -19,7 +16,7 @@ public class ListGamesHandler {
 
     public Object listGames(Request request, Response response) {
         try {
-            Games games = listGamesService.listGames(request.headers("Authorization"));
+            ListGamesResponse games = listGamesService.listGames(request.headers("Authorization"));
             response.status(200);
             return new Gson().toJson(games);
         } catch (UnauthorizedException exception) {

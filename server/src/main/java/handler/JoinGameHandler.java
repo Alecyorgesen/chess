@@ -4,9 +4,8 @@ import com.google.gson.Gson;
 import error.AlreadyTakenException;
 import error.BadRequestException;
 import error.UnauthorizedException;
-import message.ColorAndGameID;
+import message.JoinGameRequest;
 import message.ErrorMessage;
-import model.UserData;
 import service.JoinGameService;
 import spark.Request;
 import spark.Response;
@@ -16,7 +15,7 @@ public class JoinGameHandler {
 
     public Object joinGame(Request request, Response response) {
         try {
-            ColorAndGameID colorAndGameID = new Gson().fromJson(request.body(), ColorAndGameID.class);
+            JoinGameRequest colorAndGameID = new Gson().fromJson(request.body(), JoinGameRequest.class);
             joinGameService.joinGame(request.headers("Authorization"), colorAndGameID);
             response.status(200);
             return "{}";
