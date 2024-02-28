@@ -20,6 +20,6 @@ public class CreateGameService {
             throw new UnauthorizedException("Error: unauthorized");
         }
         GameData gameData = gameDAO.createGame(gameName);
-        return gameData.gameId();
+        return gameData.gameID();
     }
 }

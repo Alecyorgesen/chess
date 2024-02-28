@@ -33,7 +33,7 @@ public class GameMemoryDAO implements GameDAO {
     @Override
     public GameData getGame(int gameID) {
         for (GameData gameData : data) {
-            if (gameData.gameId() == gameID) {
+            if (gameData.gameID() == gameID) {
                 return gameData;
             }
         }
@@ -44,7 +44,7 @@ public class GameMemoryDAO implements GameDAO {
     public void updateGame(int gameID, String whiteUsername, String blackUsername, String gameName, ChessGame updatedGame) {
         GameData oldGame = null;
         for (GameData gameData : data) {
-            if (gameData.gameId() == gameID) {
+            if (gameData.gameID() == gameID) {
                 oldGame = gameData;
             }
         }

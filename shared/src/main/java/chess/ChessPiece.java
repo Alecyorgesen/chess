@@ -168,50 +168,62 @@ public class ChessPiece {
                 }
             }
             if (this.hasMoved == false) {
-                if (isValidCoordinant(row,column) && isValidCoordinant(row,column+1) && isValidCoordinant(row,column+2) && isValidCoordinant(row,column+3)) {
-                    endPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn()+1);
+                castleOnRight(row, column, myPosition, board, availableMoves);
+                castleOnLeft(row, column, myPosition, board, availableMoves);
+            }
+        }
+        return availableMoves;
+    }
+
+    private void castleOnRight(int row, int column, ChessPosition myPosition, ChessBoard board, HashSet<ChessMove> availableMoves) {
+        if (isValidCoordinant(row,column) && isValidCoordinant(row,column+1) && isValidCoordinant(row,column+2) && isValidCoordinant(row,column+3)) {
+            ChessPosition endPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn()+1);
+            ChessPiece chessPiece = board.getPiece(endPosition);
+            if (chessPiece == null) {
+                endPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn()+2);
+                chessPiece = board.getPiece(endPosition);
+                if (chessPiece == null) {
+                    endPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn()+3);
                     chessPiece = board.getPiece(endPosition);
-                    if (chessPiece == null) {
-                        endPosition = new ChessPosition(myPosition.getRow(),myPosition.getColumn()+2);
-                        chessPiece = board.getPiece(endPosition);
-                        if (chessPiece == null) {
-                            endPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn()+3);
-                            chessPiece = board.getPiece(endPosition);
-                            if (chessPiece != null) {
-                                if (chessPiece.getPieceType() == PieceType.ROOK && chessPiece.hasMoved == false) {
-                                    endPosition = new ChessPosition(myPosition.getRow(),myPosition.getColumn()+2);
-                                    availableMoves.add(new ChessMove(myPosition,endPosition,null));
-                                }
-                            }
+                    if (chessPiece != null) {
+                        if (chessPiece.getPieceType() == PieceType.ROOK && chessPiece.hasMoved == false) {
+                            endPosition = new ChessPosition(myPosition.getRow(),myPosition.getColumn()+2);
+                            availableMoves.add(new ChessMove(myPosition,endPosition,null));
                         }
                     }
                 }
-                if (isValidCoordinant(row,column) && isValidCoordinant(row,column-1) && isValidCoordinant(row,column-2) && isValidCoordinant(row,column-3) && isValidCoordinant(row,column-4)) {
-                    endPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn()-1);
+            }
+        }
+    }
+    private void setPostionAndGetPiece(ChessPosition endPosition, ChessPosition myPosition, ChessPiece chessPiece, ChessBoard board, int distance) {
+        endPosition = new ChessPosition(myPosition.getRow(),myPosition.getColumn()+distance);
+        chessPiece = board.getPiece(endPosition);
+    }
+    private void castleOnLeft(int row, int column, ChessPosition myPosition, ChessBoard board, HashSet<ChessMove> availableMoves) {
+        if (isValidCoordinant(row,column) && isValidCoordinant(row,column-1) && isValidCoordinant(row,column-2) && isValidCoordinant(row,column-3) && isValidCoordinant(row,column-4)) {
+            ChessPosition endPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn()-1);
+            ChessPiece chessPiece = board.getPiece(endPosition);
+            if (chessPiece == null) {
+                endPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn()-2);
+                chessPiece = board.getPiece(endPosition);
+                if (chessPiece == null) {
+                    endPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn()-3);
                     chessPiece = board.getPiece(endPosition);
                     if (chessPiece == null) {
-                        endPosition = new ChessPosition(myPosition.getRow(),myPosition.getColumn()-2);
+                        endPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn()-4);
                         chessPiece = board.getPiece(endPosition);
-                        if (chessPiece == null) {
-                            endPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn()-3);
-                            chessPiece = board.getPiece(endPosition);
-                            if (chessPiece == null) {
-                                endPosition = new ChessPosition((myPosition.getRow()),myPosition.getColumn()-4);
-                                chessPiece = board.getPiece(endPosition);
-                                if (chessPiece != null) {
-                                    if (chessPiece.getPieceType() == PieceType.ROOK && chessPiece.hasMoved == false) {
-                                        endPosition = new ChessPosition(myPosition.getRow(),myPosition.getColumn()-2);
-                                        availableMoves.add(new ChessMove(myPosition,endPosition,null));
-                                    }
-                                }
+                        if (chessPiece != null) {
+                            if (chessPiece.getPieceType() == PieceType.ROOK && chessPiece.hasMoved == false) {
+                                endPosition = new ChessPosition(myPosition.getRow(),myPosition.getColumn()-2);
+                                availableMoves.add(new ChessMove(myPosition,endPosition,null));
                             }
                         }
                     }
                 }
             }
         }
-        return availableMoves;
     }
+
 
     private void rookMoveUp(int row, int column, ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> availableMoves) {
         ChessPiece chessPiece;

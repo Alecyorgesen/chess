@@ -47,6 +47,6 @@ public class JoinGameService {
                 throw new AlreadyTakenException("Error: already taken");
             }
         }
-        gameDAO.updateGame(gameData.gameId(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gameData.game());
+        gameDAO.updateGame(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gameData.game());
     }
 }
