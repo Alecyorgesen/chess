@@ -65,54 +65,7 @@ public class ChessPiece {
         ChessPosition endPosition;
         ChessPiece chessPiece;
         if (type==PieceType.PAWN) {
-            if (this.pieceColor == ChessGame.TeamColor.BLACK) {direction = -1;} //This line tells it to go the opposite way if black.
-            if (board.getPiece(row + direction, column) == null) {
-                endPosition = new ChessPosition(row + direction, column);
-                if (row + direction == 1 || row + direction == 8) {
-                    PieceType[] promotionTypeArray = {PieceType.QUEEN,PieceType.ROOK,PieceType.BISHOP,PieceType.KNIGHT};
-                    for (PieceType type : promotionTypeArray) {
-                        availableMoves.add(new ChessMove(myPosition,endPosition,type));
-                    }
-                } else {
-                    availableMoves.add(new ChessMove(myPosition,endPosition,null));
-                }
-                if (row == 2 || row == 7) {
-                    if (isValidCoordinant(row + direction*2, column)) {
-                        if (board.getPiece(row + direction*2, column) == null) {
-                            endPosition = new ChessPosition(row + direction*2, column);
-                            availableMoves.add(new ChessMove(myPosition,endPosition,null));
-                        }
-                    }
-                }
-            }
-            int[] attackPosititons = {1, -1};
-            for (int i : attackPosititons) {
-                if (isValidCoordinant(row + direction, column + i)) {
-                    chessPiece = board.getPiece(row + direction, column + i);
-                    if (chessPiece != null) {
-                        if (chessPiece.getTeamColor() != this.getTeamColor()) {
-                            endPosition = new ChessPosition(row + direction, column + i);
-                            if (row + direction == 1 || row + direction == 8) {
-                                PieceType[] promotionTypeArray = {PieceType.QUEEN,PieceType.ROOK,PieceType.BISHOP,PieceType.KNIGHT};
-                                for (PieceType type : promotionTypeArray) {
-                                    availableMoves.add(new ChessMove(myPosition,endPosition,type));
-                                }
-                            } else {
-                                availableMoves.add(new ChessMove(myPosition,endPosition,null));
-                            }
-                        }
-                    } else {
-                        chessPiece = board.getPiece(row, column + i);
-                        if (chessPiece != null) {
-                            if (chessPiece.hasDoubleMoved && chessPiece.getTeamColor() != this.getTeamColor()) {
-                                endPosition = new ChessPosition(row + direction, column + i);
-                                availableMoves.add(new ChessMove(myPosition, endPosition,null));
-                            }
-                        }
-                    }
-                }
-            }
-
+            pawnAvailableMoves(board, row, column, myPosition, availableMoves, direction);
         } else
         if (type==PieceType.ROOK) {
             rookMoveUp(row, column, board, myPosition, availableMoves);
@@ -174,7 +127,57 @@ public class ChessPiece {
         }
         return availableMoves;
     }
-
+    private void pawnAvailableMoves(ChessBoard board, int row, int column, ChessPosition myPosition, HashSet<ChessMove> availableMoves, int direction) {
+        ChessPosition endPosition;
+        ChessPiece chessPiece;
+        if (this.pieceColor == ChessGame.TeamColor.BLACK) {direction = -1;} //This line tells it to go the opposite way if black.
+        if (board.getPiece(row + direction, column) == null) {
+            endPosition = new ChessPosition(row + direction, column);
+            if (row + direction == 1 || row + direction == 8) {
+                PieceType[] promotionTypeArray = {PieceType.QUEEN,PieceType.ROOK,PieceType.BISHOP,PieceType.KNIGHT};
+                for (PieceType type : promotionTypeArray) {
+                    availableMoves.add(new ChessMove(myPosition,endPosition,type));
+                }
+            } else {
+                availableMoves.add(new ChessMove(myPosition,endPosition,null));
+            }
+            if (row == 2 || row == 7) {
+                if (isValidCoordinant(row + direction*2, column)) {
+                    if (board.getPiece(row + direction*2, column) == null) {
+                        endPosition = new ChessPosition(row + direction*2, column);
+                        availableMoves.add(new ChessMove(myPosition,endPosition,null));
+                    }
+                }
+            }
+        }
+        int[] attackPosititons = {1, -1};
+        for (int i : attackPosititons) {
+            if (isValidCoordinant(row + direction, column + i)) {
+                chessPiece = board.getPiece(row + direction, column + i);
+                if (chessPiece != null) {
+                    if (chessPiece.getTeamColor() != this.getTeamColor()) {
+                        endPosition = new ChessPosition(row + direction, column + i);
+                        if (row + direction == 1 || row + direction == 8) {
+                            PieceType[] promotionTypeArray = {PieceType.QUEEN,PieceType.ROOK,PieceType.BISHOP,PieceType.KNIGHT};
+                            for (PieceType type : promotionTypeArray) {
+                                availableMoves.add(new ChessMove(myPosition,endPosition,type));
+                            }
+                        } else {
+                            availableMoves.add(new ChessMove(myPosition,endPosition,null));
+                        }
+                    }
+                } else {
+                    chessPiece = board.getPiece(row, column + i);
+                    if (chessPiece != null) {
+                        if (chessPiece.hasDoubleMoved && chessPiece.getTeamColor() != this.getTeamColor()) {
+                            endPosition = new ChessPosition(row + direction, column + i);
+                            availableMoves.add(new ChessMove(myPosition, endPosition,null));
+                        }
+                    }
+                }
+            }
+        }
+    }
     private void castleOnRight(int row, int column, ChessPosition myPosition, ChessBoard board, HashSet<ChessMove> availableMoves) {
         if (isValidCoordinant(row,column) && isValidCoordinant(row,column+1) && isValidCoordinant(row,column+2) && isValidCoordinant(row,column+3)) {
             ChessPosition endPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn()+1);
