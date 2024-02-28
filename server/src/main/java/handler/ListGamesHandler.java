@@ -16,9 +16,9 @@ public class ListGamesHandler {
 
     public Object listGames(Request request, Response response) {
         try {
-            ListGamesResponse games = listGamesService.listGames(request.headers("Authorization"));
+            ListGamesResponse listGamesResponse = listGamesService.listGames(request.headers("Authorization"));
             response.status(200);
-            return new Gson().toJson(games);
+            return new Gson().toJson(listGamesResponse);
         } catch (UnauthorizedException exception) {
             response.status(401);
             return new Gson().toJson(new ErrorMessage(exception.getMessage()));

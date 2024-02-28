@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class LogoutService {
-    static final AuthDAO authDAO = new AuthMemoryDAO();
+    static AuthDAO authDAO = new AuthMemoryDAO();
     public  LogoutService() {
 
     }

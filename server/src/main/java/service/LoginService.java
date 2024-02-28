@@ -7,8 +7,8 @@ import model.AuthData;
 import model.UserData;
 
 public class LoginService {
-    static final UserDAO userDAO = new UserMemoryDAO();
-    static final AuthDAO authDAO = new AuthMemoryDAO();
+    static UserDAO userDAO = new UserMemoryDAO();
+    static AuthDAO authDAO = new AuthMemoryDAO();
 
     public LoginService() {
 

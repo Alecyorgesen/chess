@@ -33,7 +33,9 @@ public class GameMemoryDAO implements GameDAO {
     @Override
     public GameData getGame(int gameID) {
         for (GameData gameData : data) {
-            return gameData;
+            if (gameData.gameId() == gameID) {
+                return gameData;
+            }
         }
         return null;
     }
