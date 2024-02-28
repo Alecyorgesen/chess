@@ -5,7 +5,6 @@ import model.AuthData;
 public interface AuthDAO {
     void clear();
     AuthData createAuth(String username);
-    AuthData getAuth(String username);
     void deleteAuth(String authToken);
     AuthData getAuthUsingAuth(String authToken);
 }
