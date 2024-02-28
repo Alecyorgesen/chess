@@ -11,9 +11,6 @@ import java.util.Set;
 
 public class LogoutService {
     static AuthDAO authDAO = new AuthMemoryDAO();
-    public  LogoutService() {
-
-    }
 
     public void logout(String authToken) throws UnauthorizedException {
         if (authToken == null) {

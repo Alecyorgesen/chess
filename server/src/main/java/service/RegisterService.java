@@ -10,13 +10,8 @@ import message.ErrorMessage;
 import java.util.UUID;
 
 public class RegisterService {
-    static UserDAO userDAO;
-    static AuthDAO authDAO;
-
-    public RegisterService() {
-        userDAO = new UserMemoryDAO();
-        authDAO = new AuthMemoryDAO();
-    }
+    static UserDAO userDAO = new UserMemoryDAO();
+    static AuthDAO authDAO = new AuthMemoryDAO();
 
     public AuthData register(UserData userData) throws AlreadyTakenException, BadRequestException {
         if (userData.username() == null || userData.email() == null || userData.password() == null) {

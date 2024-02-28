@@ -10,10 +10,6 @@ public class LoginService {
     static UserDAO userDAO = new UserMemoryDAO();
     static AuthDAO authDAO = new AuthMemoryDAO();
 
-    public LoginService() {
-
-    }
-
     public AuthData login(UserData userData) throws UnauthorizedException {
         if (userData.password() == null || userData.username() == null) {
             throw new UnauthorizedException("Error: unauthorized");
