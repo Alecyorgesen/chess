@@ -2,6 +2,7 @@ package service;
 
 import dataAccess.AuthDAO;
 import dataAccess.AuthMemoryDAO;
+import dataAccess.DataAccessException;
 import error.UnauthorizedException;
 import model.AuthData;
 import passoffTests.testClasses.TestModels;
@@ -12,7 +13,7 @@ import java.util.Set;
 public class LogoutService {
     static AuthDAO authDAO = new AuthMemoryDAO();
 
-    public void logout(String authToken) throws UnauthorizedException {
+    public void logout(String authToken) throws UnauthorizedException, DataAccessException {
         if (authToken == null) {
             throw new UnauthorizedException("Error: unauthorized");
         }

@@ -7,13 +7,14 @@ import model.AuthData;
 import model.UserData;
 import message.ErrorMessage;
 
+import javax.xml.crypto.Data;
 import java.util.UUID;
 
 public class RegisterService {
-    static UserDAO userDAO = new UserMemoryDAO();
+    static UserDAO userDAO = new UserSQLDAO();
     static AuthDAO authDAO = new AuthMemoryDAO();
 
-    public AuthData register(UserData userData) throws AlreadyTakenException, BadRequestException {
+    public AuthData register(UserData userData) throws AlreadyTakenException, BadRequestException, DataAccessException {
         if (userData.username() == null || userData.email() == null || userData.password() == null) {
             throw new BadRequestException("Error: bad request");
         }
@@ -28,7 +29,7 @@ public class RegisterService {
         return authDAO.createAuth(userData.username());
     }
 
-    private String getUsername(String username) {
+    private String getUsername(String username) throws DataAccessException {
         UserData user = userDAO.getUser(username);
         if (user == null) {
             return null;

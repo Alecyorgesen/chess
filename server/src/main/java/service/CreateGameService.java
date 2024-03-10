@@ -1,9 +1,6 @@
 package service;
 
-import dataAccess.AuthDAO;
-import dataAccess.AuthMemoryDAO;
-import dataAccess.GameDAO;
-import dataAccess.GameMemoryDAO;
+import dataAccess.*;
 import error.BadRequestException;
 import error.UnauthorizedException;
 import model.*;
@@ -11,7 +8,7 @@ import model.*;
 public class CreateGameService {
     public static AuthDAO authDAO = new AuthMemoryDAO();
     public static GameDAO gameDAO = new GameMemoryDAO();
-    public int createGame(String authToken, String gameName) throws BadRequestException, UnauthorizedException {
+    public int createGame(String authToken, String gameName) throws BadRequestException, UnauthorizedException, DataAccessException {
         if (gameName == null || authToken == null) {
             throw new BadRequestException("Error: bad request");
         }

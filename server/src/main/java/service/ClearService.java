@@ -5,7 +5,7 @@ import model.AuthData;
 
 public class ClearService {
     static AuthDAO authDAO = new AuthMemoryDAO();
-    static UserDAO userDAO = new UserMemoryDAO();
+    static UserDAO userDAO = new UserSQLDAO();
     static GameDAO gameDAO = new GameMemoryDAO();
     public ClearService() {
 

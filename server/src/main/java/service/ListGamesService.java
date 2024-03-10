@@ -13,7 +13,7 @@ public class ListGamesService {
     public static GameDAO gameDAO = new GameMemoryDAO();
     public static AuthDAO authDAO = new AuthMemoryDAO();
 
-    public ListGamesResponse listGames(String authToken) throws UnauthorizedException {
+    public ListGamesResponse listGames(String authToken) throws UnauthorizedException, DataAccessException {
         if (authToken == null) {
             throw new UnauthorizedException("Error: unauthorized");
         }

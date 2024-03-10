@@ -33,12 +33,12 @@ public class UserSQLDAO implements UserDAO {
     @Override
     public UserData getUser(String username) throws DataAccessException {
         try (Connection connection = DatabaseManager.getConnection()) {
-            String sqlString = "select username from userData where username=?;";
+            String sqlString = "select * from userData where username=?;";
             var preparedStatement = connection.prepareStatement(sqlString);
             preparedStatement.setString(1, username);
             preparedStatement.executeUpdate();
             var resultSet = preparedStatement.getResultSet();
-            return resultSet.getString("username"); //fix this thing
+            return new UserData(resultSet.getString("username"),resultSet.getString("password"),resultSet.getString("email"));
         } catch (SQLException exception) {
             throw new DataAccessException("Something broke in the database!");
         }

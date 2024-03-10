@@ -1,10 +1,7 @@
 package service;
 
 import chess.ChessGame;
-import dataAccess.AuthDAO;
-import dataAccess.AuthMemoryDAO;
-import dataAccess.GameDAO;
-import dataAccess.GameMemoryDAO;
+import dataAccess.*;
 import error.AlreadyTakenException;
 import error.BadRequestException;
 import error.UnauthorizedException;
@@ -15,7 +12,7 @@ import model.GameData;
 public class JoinGameService {
     public static AuthDAO authDAO = new AuthMemoryDAO();
     public static GameDAO gameDAO = new GameMemoryDAO();
-    public void joinGame(String authToken, JoinGameRequest colorAndGameID) throws BadRequestException, UnauthorizedException, AlreadyTakenException {
+    public void joinGame(String authToken, JoinGameRequest colorAndGameID) throws BadRequestException, UnauthorizedException, AlreadyTakenException, DataAccessException {
         if (authToken == null || colorAndGameID == null) {
             throw new BadRequestException("Error: bad request");
         }
