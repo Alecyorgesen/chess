@@ -1,6 +1,10 @@
 package server;
+import dataAccess.DataAccessException;
+import dataAccess.DatabaseManager;
 import handler.*;
 import spark.*;
+
+import javax.xml.crypto.Data;
 
 public class Server {
     public final RegisterHandler registerHandler = new RegisterHandler();
