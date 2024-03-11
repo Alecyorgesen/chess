@@ -11,11 +11,26 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import passoffTests.testClasses.TestException;
 import service.*;
 public class ServiceTests {
+    @Test
+    @BeforeEach
+    public void clearDataBase() {
+        var userDAO = new UserSQLDAO();
+        var authDAO = new AuthSQLDAO();
+        var gameDAO = new GameMemoryDAO();
+        try {
+            userDAO.clear();
+            authDAO.clear();
+            gameDAO.clear();
+        } catch (DataAccessException ex) {
+
+        }
+    }
     @Test
     @Order(1)
     public void registerTestsGood() throws TestException {

@@ -6,11 +6,11 @@ import model.GameData;
 import java.util.List;
 
 public interface GameDAO {
-    void clear();
-    GameData createGame(String gameName);
-    List<GameData> listGames();
+    void clear() throws DataAccessException;
+    GameData createGame(String gameName) throws DataAccessException;
+    List<GameData> listGames() throws DataAccessException;
 
-    GameData getGame(int gameID);
+    GameData getGame(int gameID) throws DataAccessException;
 
-    void updateGame(int gameID, String whiteUsername, String blackUsername, String gameName, ChessGame gameData);
+    void updateGame(int gameID, String whiteUsername, String blackUsername, String gameName, ChessGame gameData) throws DataAccessException;
 }
