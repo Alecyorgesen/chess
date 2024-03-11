@@ -14,7 +14,7 @@ public class UserSQLDAO implements UserDAO {
             var preparedStatement = connection.prepareStatement(sqlString);
             preparedStatement.executeUpdate();
         } catch (SQLException exception) {
-            throw new DataAccessException("Something broke in the database!");
+            throw new DataAccessException(exception.getMessage());
         }
     }
     @Override
@@ -27,7 +27,7 @@ public class UserSQLDAO implements UserDAO {
             preparedStatement.setString(3,email);
             preparedStatement.executeUpdate();
         } catch (SQLException exception) {
-            throw new DataAccessException("Something broke in the database!");
+            throw new DataAccessException(exception.getMessage());
         }
     }
     @Override
@@ -51,7 +51,7 @@ public class UserSQLDAO implements UserDAO {
             }
             return new UserData(existingUsername,existingPassword,existingEmail);
         } catch (SQLException exception) {
-            throw new DataAccessException("Something broke in the database!");
+            throw new DataAccessException(exception.getMessage());
         }
     }
 }

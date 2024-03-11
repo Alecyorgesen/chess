@@ -321,8 +321,8 @@ public class ServiceTests {
         JoinGameService joinGameService = new JoinGameService();
         ClearService clearService = new ClearService();
         GameDAO gameDAO = new GameMemoryDAO();
-        UserDAO userDAO = new UserMemoryDAO();
-        AuthDAO authDAO = new AuthMemoryDAO();
+        UserDAO userDAO = new UserSQLDAO();
+        AuthDAO authDAO = new AuthSQLDAO();
 
         UserData userData = new UserData("lDrac360l", "myPassWord", "email");
         AuthData authData;

@@ -6,7 +6,7 @@ import error.UnauthorizedException;
 import model.*;
 
 public class CreateGameService {
-    public static AuthDAO authDAO = new AuthMemoryDAO();
+    public static AuthDAO authDAO = new AuthSQLDAO();
     public static GameDAO gameDAO = new GameMemoryDAO();
     public int createGame(String authToken, String gameName) throws BadRequestException, UnauthorizedException, DataAccessException {
         if (gameName == null || authToken == null) {

@@ -10,7 +10,7 @@ import model.AuthData;
 import model.GameData;
 
 public class JoinGameService {
-    public static AuthDAO authDAO = new AuthMemoryDAO();
+    public static AuthDAO authDAO = new AuthSQLDAO();
     public static GameDAO gameDAO = new GameMemoryDAO();
     public void joinGame(String authToken, JoinGameRequest colorAndGameID) throws BadRequestException, UnauthorizedException, AlreadyTakenException, DataAccessException {
         if (authToken == null || colorAndGameID == null) {

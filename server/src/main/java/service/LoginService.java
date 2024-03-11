@@ -8,7 +8,7 @@ import model.UserData;
 
 public class LoginService {
     static UserDAO userDAO = new UserSQLDAO();
-    static AuthDAO authDAO = new AuthMemoryDAO();
+    static AuthDAO authDAO = new AuthSQLDAO();
 
     public AuthData login(UserData userData) throws UnauthorizedException, DataAccessException {
         if (userData.password() == null || userData.username() == null) {

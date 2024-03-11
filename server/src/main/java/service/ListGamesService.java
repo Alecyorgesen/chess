@@ -11,7 +11,7 @@ import java.util.List;
 
 public class ListGamesService {
     public static GameDAO gameDAO = new GameMemoryDAO();
-    public static AuthDAO authDAO = new AuthMemoryDAO();
+    public static AuthDAO authDAO = new AuthSQLDAO();
 
     public ListGamesResponse listGames(String authToken) throws UnauthorizedException, DataAccessException {
         if (authToken == null) {

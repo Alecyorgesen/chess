@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public class RegisterService {
     static UserDAO userDAO = new UserSQLDAO();
-    static AuthDAO authDAO = new AuthMemoryDAO();
+    static AuthDAO authDAO = new AuthSQLDAO();
 
     public AuthData register(UserData userData) throws AlreadyTakenException, BadRequestException, DataAccessException {
         if (userData.username() == null || userData.email() == null || userData.password() == null) {
@@ -23,9 +23,6 @@ public class RegisterService {
             throw new AlreadyTakenException("Error: already taken");
         }
         userDAO.createUser(userData.username(), userData.password(), userData.email());
-        authDAO.createAuth(userData.username());
-
-//        return new AuthData(UUID.randomUUID().toString(), userData.username());
         return authDAO.createAuth(userData.username());
     }
 
