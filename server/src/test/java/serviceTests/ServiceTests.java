@@ -22,7 +22,7 @@ public class ServiceTests {
     public void clearDataBase() {
         var userDAO = new UserSQLDAO();
         var authDAO = new AuthSQLDAO();
-        var gameDAO = new GameMemoryDAO();
+        var gameDAO = new GameSQLDAO();
         try {
             userDAO.clear();
             authDAO.clear();
@@ -167,7 +167,7 @@ public class ServiceTests {
     public void createGameTestsGood() {
         RegisterService registerService = new RegisterService();
         CreateGameService createGameService = new CreateGameService();
-        GameDAO gameDAO = new GameMemoryDAO();
+        GameDAO gameDAO = new GameSQLDAO();
 
         UserData userData = new UserData("Luigi", "myPassWord", "email");
         AuthData authData;
@@ -190,7 +190,7 @@ public class ServiceTests {
     public void createGameTestsBad() {
         RegisterService registerService = new RegisterService();
         CreateGameService createGameService = new CreateGameService();
-        GameDAO gameDAO = new GameMemoryDAO();
+        GameDAO gameDAO = new GameSQLDAO();
 
         UserData userData = new UserData("whoDunIt", "myPassWord", "email");
         AuthData authData;
@@ -213,7 +213,7 @@ public class ServiceTests {
         RegisterService registerService = new RegisterService();
         CreateGameService createGameService = new CreateGameService();
         JoinGameService joinGameService = new JoinGameService();
-        GameDAO gameDAO = new GameMemoryDAO();
+        GameDAO gameDAO = new GameSQLDAO();
 
         UserData userData = new UserData("lDrac360l", "myPassWord", "email");
         AuthData authData;
@@ -240,7 +240,7 @@ public class ServiceTests {
         RegisterService registerService = new RegisterService();
         CreateGameService createGameService = new CreateGameService();
         JoinGameService joinGameService = new JoinGameService();
-        GameDAO gameDAO = new GameMemoryDAO();
+        GameDAO gameDAO = new GameSQLDAO();
 
         UserData userData = new UserData("TheBeast", "myPassWord", "email");
         AuthData authData;
@@ -274,7 +274,7 @@ public class ServiceTests {
         CreateGameService createGameService = new CreateGameService();
         JoinGameService joinGameService = new JoinGameService();
         ListGamesService listGamesService = new ListGamesService();
-        GameDAO gameDAO = new GameMemoryDAO();
+        GameDAO gameDAO = new GameSQLDAO();
 
         UserData userData = new UserData("Mario", "myPassWord", "email");
         AuthData authData;
@@ -335,7 +335,7 @@ public class ServiceTests {
         CreateGameService createGameService = new CreateGameService();
         JoinGameService joinGameService = new JoinGameService();
         ClearService clearService = new ClearService();
-        GameDAO gameDAO = new GameMemoryDAO();
+        GameDAO gameDAO = new GameSQLDAO();
         UserDAO userDAO = new UserSQLDAO();
         AuthDAO authDAO = new AuthSQLDAO();
 

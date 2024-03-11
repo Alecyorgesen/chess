@@ -7,7 +7,7 @@ import model.*;
 
 public class CreateGameService {
     public static AuthDAO authDAO = new AuthSQLDAO();
-    public static GameDAO gameDAO = new GameMemoryDAO();
+    public static GameDAO gameDAO = new GameSQLDAO();
     public int createGame(String authToken, String gameName) throws BadRequestException, UnauthorizedException, DataAccessException {
         if (gameName == null || authToken == null) {
             throw new BadRequestException("Error: bad request");
