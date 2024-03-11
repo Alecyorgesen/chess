@@ -22,7 +22,7 @@ public class RegisterService {
         if (existingUserName != null) {
             throw new AlreadyTakenException("Error: already taken");
         }
-        userDAO.createUser(userData.username(), userData.password(), userData.password());
+        userDAO.createUser(userData.username(), userData.password(), userData.email());
         authDAO.createAuth(userData.username());
 
 //        return new AuthData(UUID.randomUUID().toString(), userData.username());
