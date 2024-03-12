@@ -1,6 +1,7 @@
 package dataAccessTests;
 
 import dataAccess.*;
+import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -27,12 +28,17 @@ public class DAOSQLTests {
 
     @Test
     @Order(1)
-    public void testCreateUser() {
+    public void testCreateUserAndGetUser() {
         try (var connection = DatabaseManager.getConnection()) {
             UserDAO userDAO = new UserSQLDAO();
-
+            UserData userData = new UserData("lDrac360l", "theBestPassword","eMALL");
+            userDAO.createUser("lDrac360l", "theBestPassword","eMALL");
+            UserData storedUserData = userDAO.getUser("lDrac360l");
+            if (!(userData.password().equals(storedUserData.password())) && !(userData.email().equals(storedUserData.email()))) {
+                throw new TestException("The password and email don't match for the user created and the user retrieved");
+            }
         } catch (Exception ex) {
-            throw new TestException("The Database broke");
+            throw new TestException(ex.getMessage());
         }
     }
 }
