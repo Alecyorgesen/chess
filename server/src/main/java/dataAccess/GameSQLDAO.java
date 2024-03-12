@@ -25,7 +25,7 @@ public class GameSQLDAO implements GameDAO {
             var preparedStatement = connection.prepareStatement(sqlString);
             preparedStatement.executeUpdate();
         } catch (Exception exception) {
-            System.out.println("Could not create gameData table");
+            System.out.println("Could not create gameData table or already exists");
         }
     }
     @Override

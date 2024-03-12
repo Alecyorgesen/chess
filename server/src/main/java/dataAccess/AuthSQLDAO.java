@@ -14,7 +14,7 @@ public class AuthSQLDAO implements AuthDAO {
             var preparedStatement = connection.prepareStatement(sqlString);
             preparedStatement.executeUpdate();
         } catch (Exception exception) {
-            System.out.println("Could not create authData table");
+            System.out.println("Could not create authData table or already exists");
         }
     }
     @Override

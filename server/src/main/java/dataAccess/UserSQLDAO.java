@@ -13,7 +13,7 @@ public class UserSQLDAO implements UserDAO {
             var preparedStatement = connection.prepareStatement(sqlString);
             preparedStatement.executeUpdate();
         } catch (Exception exception) {
-            System.out.println("Could not create userData table");
+            System.out.println("Could not create userData table or already exists");
         }
     }
     @Override

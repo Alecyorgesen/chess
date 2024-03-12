@@ -18,7 +18,13 @@ public class Server {
 
     public Server() {
     }
-
+    static {
+        try {
+            DatabaseManager.createDatabase();
+        } catch (Exception ex) {
+            System.out.println("Database already exists or cannot be created");
+        }
+    }
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
@@ -26,7 +32,6 @@ public class Server {
 
         // Register your endpoints and handle exceptions here.
 
-//        Spark.get("/", (req, res) -> {System.out.println("get"); return 1;});
         Spark.post("/user", registerHandler::register);
         Spark.post("/session", loginHandler::login);
         Spark.delete("/session", logoutHandler::logout);
