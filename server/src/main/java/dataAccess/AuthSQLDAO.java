@@ -8,6 +8,15 @@ import java.sql.SQLException;
 import java.util.UUID;
 
 public class AuthSQLDAO implements AuthDAO {
+    static {
+        try (Connection connection = DatabaseManager.getConnection()) {
+            String sqlString = "create table authData(auth varchar(64), username varchar(128));";
+            var preparedStatement = connection.prepareStatement(sqlString);
+            preparedStatement.executeUpdate();
+        } catch (Exception exception) {
+            System.out.println("Could not create authData table");
+        }
+    }
     @Override
     public void clear() throws DataAccessException {
         try (var connection = DatabaseManager.getConnection()) {

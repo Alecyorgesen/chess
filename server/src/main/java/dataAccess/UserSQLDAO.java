@@ -7,6 +7,15 @@ import java.sql.SQLException;
 
 public class UserSQLDAO implements UserDAO {
 
+    static {
+        try (Connection connection = DatabaseManager.getConnection()) {
+            String sqlString = "create table userData(username varchar(128), password varchar(128), email varchar(128));";
+            var preparedStatement = connection.prepareStatement(sqlString);
+            preparedStatement.executeUpdate();
+        } catch (Exception exception) {
+            System.out.println("Could not create userData table");
+        }
+    }
     @Override
     public void clear() throws DataAccessException {
         try (Connection connection = DatabaseManager.getConnection()) {

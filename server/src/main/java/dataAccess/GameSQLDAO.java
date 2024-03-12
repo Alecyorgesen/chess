@@ -12,6 +12,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GameSQLDAO implements GameDAO {
+
+    static {
+        try (Connection connection = DatabaseManager.getConnection()) {
+            String sqlString = "create table gameData(" +
+                    "gameID int not null auto_increment primary key," +
+                    "whiteUsername varchar(128)," +
+                    "blackUsername varchar(128)," +
+                    "gameName varchar(128)," +
+                    "game varchar(2056)" +
+                    ");";
+            var preparedStatement = connection.prepareStatement(sqlString);
+            preparedStatement.executeUpdate();
+        } catch (Exception exception) {
+            System.out.println("Could not create gameData table");
+        }
+    }
     @Override
     public void clear() throws DataAccessException {
         try (var connection = DatabaseManager.getConnection()) {
