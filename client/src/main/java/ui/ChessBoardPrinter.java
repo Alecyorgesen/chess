@@ -20,20 +20,40 @@ public class ChessBoardPrinter {
 
         out.print(EscapeSequences.ERASE_SCREEN);
 
-        printTopSideAlsoBottomSide(out);
-        printMiddlePartOfBoard(out, board);
-        printTopSideAlsoBottomSide(out);
+        printBoardFromBlackPerspective(out, board);
+        printSpaceInBetweenBoards(out);
+        printBoardFromWhitePerspective(out, board);
 
-        out.print(BLANK_SQUARE);
+//        out.print(BLANK_SQUARE);
 
         
     }
+    void printSpaceInBetweenBoards(PrintStream out) {
+        out.print(EscapeSequences.SET_BG_COLOR_DARK_GREY);
+        out.print(BLANK_SQUARE.repeat(9));
+        out.println();
+    }
+    void printBoardFromWhitePerspective(PrintStream out, ChessBoard board) {
+        printTopSideAlsoBottomSide(out, true);
+        printMiddlePartOfBoard(out, board, true);
+        printTopSideAlsoBottomSide(out, true);
+    }
+    void printBoardFromBlackPerspective(PrintStream out, ChessBoard board) {
+        printTopSideAlsoBottomSide(out, false);
+        printMiddlePartOfBoard(out, board, false);
+        printTopSideAlsoBottomSide(out, false);
+    }
 
-    void printTopSideAlsoBottomSide(PrintStream out) {
+    void printTopSideAlsoBottomSide(PrintStream out, Boolean whitePerspective) {
         out.print(EscapeSequences.SET_BG_COLOR_DARK_GREY);
         out.print(EscapeSequences.SET_TEXT_COLOR_WHITE);
         out.print(BLANK_SQUARE);
-        String[] letterCoordinates = {" a ", " b ", " c ", " d ", " e ", " f ", " g ", " h "};
+        String[] letterCoordinates;
+        if (whitePerspective) {
+            letterCoordinates = new String[]{" a ", " b ", " c ", " d ", " e ", " f ", " g ", " h "};
+        } else {
+            letterCoordinates = new String[]{" h ", " g ", " f ", " e ", " d ", " c ", " b ", " a "};
+        }
         for (String letter : letterCoordinates) {
             out.print(letter);
         }
@@ -41,9 +61,14 @@ public class ChessBoardPrinter {
         out.println();
     }
 
-    void printMiddlePartOfBoard(PrintStream out, ChessBoard board) {
-        ChessPiece[][] chessPieceMatrix = getPiecesAsMatrix(board);
-        String[] numberCoordinates = {" 1 ", " 2 ", " 3 ", " 4 ", " 5 ", " 6 ", " 7 ", " 8 "};
+    void printMiddlePartOfBoard(PrintStream out, ChessBoard board, Boolean whitePerspective) {
+        ChessPiece[][] chessPieceMatrix = getPiecesAsMatrix(board, whitePerspective);
+        String[] numberCoordinates;
+        if (whitePerspective) {
+            numberCoordinates = new String[]{" 8 ", " 7 ", " 6 ", " 5 ", " 4 ", " 3 ", " 2 ", " 1 "};
+        } else {
+            numberCoordinates = new String[]{" 1 ", " 2 ", " 3 ", " 4 ", " 5 ", " 6 ", " 7 ", " 8 "};
+        }
         for (int i = 1; i < 9; i++) {
             out.print(EscapeSequences.SET_BG_COLOR_DARK_GREY);
             out.print(EscapeSequences.SET_TEXT_COLOR_WHITE);
@@ -122,13 +147,30 @@ public class ChessBoardPrinter {
                 }
             }
     }
-    ChessPiece[][] getPiecesAsMatrix(ChessBoard board) {
+    ChessPiece[][] getPiecesAsMatrix(ChessBoard board, Boolean whitePerspective) {
         ChessPiece[][] chessPiecesMatrix = new ChessPiece[9][9];
         for (int i = 1; i < 9; i++) {
-            for (int j = 8; j >= 1; j--) {
-                chessPiecesMatrix[i][j] = board.getPiece(i, j);
+            for (int j = 1; j < 9; j++) {
+                if (whitePerspective) {
+                    chessPiecesMatrix[flipCoordinate(i)][j] = board.getPiece(i, j);
+                } else {
+                    chessPiecesMatrix[i][flipCoordinate(j)] = board.getPiece(i, j);
+                }
             }
         }
         return chessPiecesMatrix;
+    }
+    private int flipCoordinate(int number) {
+        return switch (number) {
+            case 1 -> 8;
+            case 2 -> 7;
+            case 3 -> 6;
+            case 4 -> 5;
+            case 5 -> 4;
+            case 6 -> 3;
+            case 7 -> 2;
+            case 8 -> 1;
+            default -> number;
+        };
     }
 }
