@@ -1,5 +1,8 @@
 package client;
 
+import chess.ChessBoard;
+import ui.ChessBoardPrinter;
+
 import java.util.Scanner;
 
 public class Client {
@@ -10,6 +13,8 @@ public class Client {
 
     private void beforeLoginLoop() {
         Scanner scanner = new Scanner(System.in);
+        ChessBoardPrinter chessBoardPrinter = new ChessBoardPrinter();
+        ChessBoard chessBoard = new ChessBoard();
         while (true) {
             System.out.println("Welcome to Chess!!! Please select an option by choosing the appropriate number:");
             System.out.println(" ");
@@ -21,6 +26,7 @@ public class Client {
             switch (line) {
                 case "1":
                     help();
+                    chessBoardPrinter.printChessBoard(chessBoard); // temporary!!!!!!!!!
                     continue;
                 case "2":
                     quit();
@@ -35,7 +41,7 @@ public class Client {
         }
     }
     private void help() {
-        System.out.println("SAY BOOO (help)");
+        System.out.println("help");
     }
     private void quit() {
         System.out.println("quit");
