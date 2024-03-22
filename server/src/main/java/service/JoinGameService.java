@@ -16,7 +16,14 @@ public class JoinGameService {
         if (authToken == null || colorAndGameID == null) {
             throw new BadRequestException("Error: bad request");
         }
-        ChessGame.TeamColor playerColor = colorAndGameID.playerColor();
+        ChessGame.TeamColor playerColor;
+        if (colorAndGameID.playerColor().equals("WHITE")) {
+            playerColor = ChessGame.TeamColor.WHITE;
+        } else if (colorAndGameID.playerColor().equals("BLACK")) {
+            playerColor = ChessGame.TeamColor.BLACK;
+        } else {
+            throw new BadRequestException("Bad request it would seem");
+        }
         int gameID = colorAndGameID.gameID();
         GameData gameData = gameDAO.getGame(gameID);
 

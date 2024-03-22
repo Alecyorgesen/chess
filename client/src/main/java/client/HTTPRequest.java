@@ -144,4 +144,48 @@ public class HTTPRequest {
             throw new RuntimeException(ex.getMessage());
         }
     }
+    public void joinGameRequest(AuthData authData, int gameID, String teamColor, String urlString) {
+        try {
+            URL url = new URL(urlString);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setReadTimeout(5000);
+            connection.setRequestMethod("PUT");
+            connection.setDoOutput(true);
+
+            connection.addRequestProperty("Authorization", authData.authToken());
+            try (OutputStream requestBody = connection.getOutputStream()) {
+                requestBody.write(("{ \"playerColor\":\""+ teamColor +"\", \"gameID\":\""+ gameID +"\" }").getBytes());
+            }
+
+            connection.connect();
+
+            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+
+            } else {
+                InputStream responseBody = connection.getErrorStream();
+                System.out.println(responseBody.toString());
+                return;
+            }
+        } catch (Exception ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
+    }
+    public void clearGameRequest(String urlString) {
+        try {
+            URL url = new URL(urlString);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setReadTimeout(5000);
+            connection.setRequestMethod("DELETE");
+            connection.setDoOutput(true);
+
+            connection.connect();
+
+            if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                InputStream responseBody = connection.getErrorStream();
+                System.out.println(responseBody.toString());
+            }
+        } catch (Exception ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
+    }
 }

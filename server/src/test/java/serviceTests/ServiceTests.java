@@ -224,7 +224,7 @@ public class ServiceTests {
         } catch (Exception e) {
             throw new TestException("Should not have thrown: " + e.getMessage());
         }
-        JoinGameRequest colorAndGameID = new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID);
+        JoinGameRequest colorAndGameID = new JoinGameRequest("WHITE", gameID);
         try {
             joinGameService.joinGame(authData.authToken(), colorAndGameID);
             GameData gameData = gameDAO.getGame(gameID);
@@ -251,7 +251,7 @@ public class ServiceTests {
         } catch (Exception e) {
             throw new TestException("Should not have thrown: " + e.getMessage());
         }
-        JoinGameRequest colorAndGameID = new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID);
+        JoinGameRequest colorAndGameID = new JoinGameRequest("WHITE", gameID);
         try {
             joinGameService.joinGame(authData.authToken(), colorAndGameID);
             GameData gameData = gameDAO.getGame(gameID);
@@ -283,7 +283,7 @@ public class ServiceTests {
         try {
             authData = registerService.register(userData);
             gameID = createGameService.createGame(authData.authToken(), "Cool Game");
-            colorAndGameID = new JoinGameRequest(ChessGame.TeamColor.BLACK, gameID);
+            colorAndGameID = new JoinGameRequest("BLACK", gameID);
             joinGameService.joinGame(authData.authToken(), colorAndGameID);
         } catch (Exception e) {
             throw new TestException("Should not have thrown: " + e.getMessage());
@@ -314,7 +314,7 @@ public class ServiceTests {
         try {
             authData = registerService.register(userData);
             gameID = createGameService.createGame(authData.authToken(), "Cool Game");
-            joinGameRequest = new JoinGameRequest(ChessGame.TeamColor.BLACK, gameID);
+            joinGameRequest = new JoinGameRequest("BLACK", gameID);
             joinGameService.joinGame(authData.authToken(), joinGameRequest);
         } catch (Exception e) {
             throw new TestException("Should not have thrown: " + e.getMessage());
@@ -346,7 +346,7 @@ public class ServiceTests {
         try {
             authData = registerService.register(userData);
             gameID = createGameService.createGame(authData.authToken(), "Cool Game");
-            colorAndGameID = new JoinGameRequest(ChessGame.TeamColor.BLACK, gameID);
+            colorAndGameID = new JoinGameRequest("BLACK", gameID);
             joinGameService.joinGame(authData.authToken(), colorAndGameID);
         } catch (Exception e) {
             throw new TestException("Should not have thrown: " + e.getMessage());

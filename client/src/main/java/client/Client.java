@@ -14,13 +14,12 @@ import java.util.Scanner;
 
 public class Client {
     Scanner scanner = new Scanner(System.in);
-    ServerFacade serverFacade = new ServerFacade();
+    ServerFacade serverFacade = new ServerFacade(8080);
     AuthData authData = null;
     Map<Integer,GameData> mapOfGames = new HashMap<>();
     int gameNumber = 1;
     ChessBoardPrinter chessBoardPrinter = new ChessBoardPrinter();
     ChessBoard chessBoard = new ChessBoard();
-
     public void run() {
         beforeLoginLoop();
     }
@@ -164,6 +163,11 @@ public class Client {
     }
     private void displayGames(List<GameData> listOfChessGames) {
         for (var gameData : listOfChessGames) {
+            for (int key : mapOfGames.keySet()) {
+                if (mapOfGames.get(key).gameID() == gameData.gameID()) {
+                    mapOfGames.put(key, gameData);
+                }
+            }
             if (!mapOfGames.containsValue(gameData)) {
                 mapOfGames.put(gameNumber, gameData);
                 gameNumber++;
@@ -175,9 +179,65 @@ public class Client {
         }
     }
     private void joinGame() {
-
+        listGames();
+        System.out.println("Please select the number of the game you would like to join.");
+        int number = 0;
+        try {
+            number = Integer.parseInt(scanner.nextLine());
+        } catch (Exception ex) {
+            System.out.println("Invalid input.");
+            return;
+        }
+        GameData gameData = mapOfGames.get(number);
+        if (gameData == null) {
+            System.out.println("Invalid input.");
+            return;
+        }
+        int gameID = gameData.gameID();
+        System.out.println("Please select the number or color of which team you'd like to join.");
+        System.out.println("1. White");
+        System.out.println("2. Black");
+        String teamColor = scanner.nextLine();
+        teamColor = switch (teamColor) {
+            case "1", "white" -> "WHITE";
+            case "2", "black" -> "BLACK";
+            default -> teamColor;
+        };
+        if (teamColor.equals("WHITE") || teamColor.equals("BLACK")) {
+            if (teamColor.equals("WHITE") && gameData.whiteUsername() != null) {
+                System.out.println("Already taken!");
+                return;
+            }
+            if (teamColor.equals("BLACK") && gameData.blackUsername() != null) {
+                System.out.println("Already taken!");
+                return;
+            }
+            serverFacade.joinGame(authData, gameID, teamColor);
+            System.out.println("Joined Game!");
+            chessBoardPrinter.printChessBoard(chessBoard);
+            return;
+        }
+        System.out.println("Invalid input.");
     }
     private void joinObserver() {
+        listGames();
+        System.out.println("Please select the number of the game you would like to observe.");
+        int number = 0;
+        try {
+            number = Integer.parseInt(scanner.nextLine());
+        } catch (Exception ex) {
+            System.out.println("Invalid input.");
+            return;
+        }
+        GameData gameData = mapOfGames.get(number);
+        if (gameData == null) {
+            System.out.println("Invalid input.");
+            return;
+        }
+        int gameID = gameData.gameID();
 
+//        serverFacade.observeGame(authData, gameID);
+        System.out.println("Observing Game!");
+        chessBoardPrinter.printChessBoard(chessBoard);
     }
 }

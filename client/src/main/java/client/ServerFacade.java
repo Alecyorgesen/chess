@@ -4,6 +4,10 @@ import model.AuthData;
 import response.ListGamesResponse;
 
 public class ServerFacade {
+    int port;
+    ServerFacade(int port) {
+        this.port = port;
+    }
     HTTPRequest httpRequest = new HTTPRequest();
     public AuthData register(String username, String password, String email) {
         try {
@@ -61,10 +65,21 @@ public class ServerFacade {
             System.out.println("Got an exception: " + ex.getMessage());
         }
     }
-    public void joinGame() {
-
+    public void joinGame(AuthData authData, int gameID, String teamColor) {
+        try {
+            httpRequest.joinGameRequest(authData, gameID, teamColor, "http://localhost:8080/game");
+            if (authData == null) {
+                System.out.println("Unauthorized.");
+            }
+        } catch (Exception ex) {
+            System.out.println("Got an exception: " + ex.getMessage());
+        }
     }
     public void clear() {
-
+        try {
+            httpRequest.clearGameRequest("http://localhost:8080/db");
+        } catch (Exception ex) {
+            System.out.println("Got an exception: " + ex.getMessage());
+        }
     }
 }

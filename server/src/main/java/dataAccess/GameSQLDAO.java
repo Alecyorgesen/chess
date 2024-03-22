@@ -20,7 +20,7 @@ public class GameSQLDAO implements GameDAO {
                     "whiteUsername varchar(128)," +
                     "blackUsername varchar(128)," +
                     "gameName varchar(128)," +
-                    "game varchar(2056)" +
+                    "game varchar(4096)" +
                     ");";
             var preparedStatement = connection.prepareStatement(sqlString);
             preparedStatement.executeUpdate();
@@ -45,6 +45,7 @@ public class GameSQLDAO implements GameDAO {
             var preparedStatement = connection.prepareStatement(sqlString, Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setString(1,gameName);
             ChessGame chessGame = new ChessGame();
+            chessGame.getBoard().resetBoard();
             String chessGameJson = new Gson().toJson(chessGame);
             preparedStatement.setString(2,chessGameJson);
             preparedStatement.executeUpdate();
