@@ -2,13 +2,15 @@ package client;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import model.AuthData;
+import response.ListGamesResponse;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
+
 public class HTTPRequest {
     public AuthData registerRequest(String username, String password, String email, String urlString) {
         try {
@@ -83,11 +85,57 @@ public class HTTPRequest {
 
             connection.connect();
 
+            if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                InputStream responseBody = connection.getErrorStream();
+                System.out.println(responseBody.toString());
+            }
+        } catch (Exception ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
+    }
+    public void createGameRequest(AuthData authData, String gameName, String urlString) {
+        try {
+            URL url = new URL(urlString);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setReadTimeout(5000);
+            connection.setRequestMethod("POST");
+            connection.setDoOutput(true);
+
+            connection.addRequestProperty("Authorization", authData.authToken());
+            try (OutputStream requestBody = connection.getOutputStream()) {
+                requestBody.write(("{ \"gameName\":\"" + gameName + "\"}").getBytes());
+            }
+
+            connection.connect();
+
             if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
 
             } else {
                 InputStream responseBody = connection.getErrorStream();
                 System.out.println(responseBody.toString());
+            }
+        } catch (Exception ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
+    }
+    public ListGamesResponse listGamesRequest(AuthData authData, String urlString) {
+        try {
+            URL url = new URL(urlString);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setReadTimeout(5000);
+            connection.setRequestMethod("GET");
+            connection.setDoOutput(true);
+
+            connection.connect();
+
+            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                InputStream responseBody = connection.getInputStream();
+                Gson gson = new GsonBuilder().create();
+                return gson.fromJson(new InputStreamReader(responseBody), ListGamesResponse.class);
+            } else {
+                InputStream responseBody = connection.getErrorStream();
+                System.out.println(responseBody.toString());
+                return null;
             }
         } catch (Exception ex) {
             throw new RuntimeException(ex.getMessage());

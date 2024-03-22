@@ -1,6 +1,7 @@
 package client;
 
 import model.AuthData;
+import response.ListGamesResponse;
 
 public class ServerFacade {
     HTTPRequest httpRequest = new HTTPRequest();
@@ -11,8 +12,8 @@ public class ServerFacade {
                 throw new Exception("Something went wrong.");
             }
             return authData;
-        } catch (Exception exception) {
-            System.out.println("Got an exception: " + exception.getMessage());
+        } catch (Exception ex) {
+            System.out.println("Got an exception: " + ex.getMessage());
         }
         return null;
     }
@@ -23,23 +24,39 @@ public class ServerFacade {
                 throw new Exception("Something went wrong.");
             }
             return authData;
-        } catch (Exception exception) {
-            System.out.println("Got an exception: " + exception.getMessage());
+        } catch (Exception ex) {
+            System.out.println("Got an exception: " + ex.getMessage());
         }
         return null;
     }
     public void logout(AuthData authData) {
         try {
             httpRequest.logoutRequest(authData,"http://localhost:8080/session");
-        } catch (Exception exception) {
-            System.out.println("Got an exception: " + exception.getMessage());
+        } catch (Exception ex) {
+            System.out.println("Got an exception: " + ex.getMessage());
         }
     }
-    public void listGames() {
-
+    public ListGamesResponse listGames(AuthData authData) {
+        try {
+            ListGamesResponse listGamesResponse = httpRequest.listGamesRequest(authData, "http://localhost:8080/game");
+            if (authData == null) {
+                System.out.println("Something went wrong, game not created.");
+            }
+            return listGamesResponse;
+        } catch (Exception ex) {
+            System.out.println("Got an exception: " + ex.getMessage());
+            return null;
+        }
     }
-    public void createGame() {
-
+    public void createGame(AuthData authData, String gameName) {
+        try {
+            httpRequest.createGameRequest(authData, gameName, "http://localhost:8080/game");
+            if (authData == null) {
+                System.out.println("Something went wrong, game not created.");
+            }
+        } catch (Exception ex) {
+            System.out.println("Got an exception: " + ex.getMessage());
+        }
     }
     public void joinGame() {
 

@@ -2,6 +2,7 @@ package client;
 
 import chess.ChessBoard;
 import model.AuthData;
+import response.ListGamesResponse;
 import ui.ChessBoardPrinter;
 
 import java.util.Scanner;
@@ -76,19 +77,19 @@ public class Client {
                     continue;
                 case "3":
                 case "create game":
-//                    createGame();
+                    createGame();
                     continue;
                 case "4":
                 case "list games":
-//                    listGames();
+                    listGames();
                     continue;
                 case "5":
                 case "join game":
-//                    joinGame();
+                    joinGame();
                     continue;
                 case "6":
                 case "join observer":
-//                    joinObserver();
+                    joinObserver();
                 default:
                     System.out.println("Enter 'help', 'logout', 'create game', 'list games', 'join game', or 'join observer'.");
                     System.out.println("Or enter the adjacent number.");
@@ -140,5 +141,22 @@ public class Client {
         System.out.println("Bye! Join again sometime!");
         System.out.println();
         serverFacade.logout(authData);
+    }
+    private void createGame() {
+        System.out.println("Please enter the name of the game:");
+        String gameName = scanner.nextLine();
+        serverFacade.createGame(authData, gameName);
+        System.out.println(gameName + " created! Use 'join game' to play!");
+        System.out.println();
+    }
+    private void listGames() {
+        System.out.println("List of game:");
+        ListGamesResponse listGamesResponse = serverFacade.listGames(authData);
+    }
+    private void joinGame() {
+
+    }
+    private void joinObserver() {
+
     }
 }
