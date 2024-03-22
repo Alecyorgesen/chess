@@ -28,6 +28,10 @@ public class ServerFacadeTests {
     @Test
     public void tests() {
         Assertions.assertTrue(true);
+        String username = "lDrac360l";
+        String password = "THE PASSWORD";
+        String email = "email"
+        serverFacade.register(username, password, email);
     }
 
 }
