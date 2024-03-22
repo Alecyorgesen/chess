@@ -7,13 +7,17 @@ import model.GameData;
 import response.ListGamesResponse;
 import ui.ChessBoardPrinter;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class Client {
     Scanner scanner = new Scanner(System.in);
     ServerFacade serverFacade = new ServerFacade();
     AuthData authData = null;
+    Map<Integer,GameData> mapOfGames = new HashMap<>();
+    int gameNumber = 1;
     ChessBoardPrinter chessBoardPrinter = new ChessBoardPrinter();
     ChessBoard chessBoard = new ChessBoard();
 
@@ -22,10 +26,10 @@ public class Client {
     }
 
     private void beforeLoginLoop() {
-        Boolean shouldLoop = true;
+        boolean shouldLoop = true;
+        System.out.println("Welcome to Chess!!! Please select an option by choosing the appropriate number:");
         while (shouldLoop) {
-            System.out.println("Welcome to Chess!!! Please select an option by choosing the appropriate number:");
-            System.out.println(" ");
+            System.out.println();
             System.out.println("1. Help.");
             System.out.println("2. Quit.");
             System.out.println("3. Login existing user.");
@@ -57,9 +61,9 @@ public class Client {
         }
     }
     private void menuScreenLoop() {
-        Boolean shouldLoop = true;
+        boolean shouldLoop = true;
+        System.out.println("Welcome to Chess!!! Please select an option by choosing the appropriate number:");
         while (shouldLoop) {
-            System.out.println("Welcome to Chess!!! Please select an option by choosing the appropriate number:");
             System.out.println();
             System.out.println("1. Help.");
             System.out.println("2. Logout.");
@@ -93,10 +97,10 @@ public class Client {
                 case "6":
                 case "join observer":
                     joinObserver();
+                    continue;
                 default:
                     System.out.println("Enter 'help', 'logout', 'create game', 'list games', 'join game', or 'join observer'.");
                     System.out.println("Or enter the adjacent number.");
-                    System.out.println();
             }
         }
     }
@@ -106,7 +110,6 @@ public class Client {
         System.out.println("Quit: 'quit' or 2 shuts turns off the application. (Please don't go yet!!!)");
         System.out.println("Login: type 'login' or 3 if you would like to, well, login! You'll need your username and password.");
         System.out.println("Register: type 'register' or 4 to create a new user. I'll be waiting for your awesomeness to join my game!");
-        System.out.println();
     }
     private void login() {
         System.out.println("Please enter your username");
@@ -138,7 +141,6 @@ public class Client {
         System.out.println("List Games: type 'list games' or 4 to get a list of the games.");
         System.out.println("Join Game: type 'join game' or 5 to get a list of the games that you can join.");
         System.out.println("Join Observer: type 'join observer' or 6 to join a game just to watch and not to play.");
-        System.out.println();
     }
     private void logout() {
         System.out.println("Bye! Join again sometime!");
@@ -150,19 +152,27 @@ public class Client {
         String gameName = scanner.nextLine();
         serverFacade.createGame(authData, gameName);
         System.out.println(gameName + " created! Use 'join game' to play!");
-        System.out.println();
     }
     private void listGames() {
         ListGamesResponse listGamesResponse = serverFacade.listGames(authData);
         if (listGamesResponse != null) {
             System.out.println("List of games:");
             List<GameData> listOfChessGames = listGamesResponse.games();
-            for (int i = 0; i < listOfChessGames.size(); i++) {
-                GameData gameData = listOfChessGames.get(i);
-                System.out.println(i+1 + ": " + gameData.gameName() + ", White: " + gameData.whiteUsername() + ", Black: " + gameData.blackUsername());
-            }
+            displayGames(listOfChessGames);
         }
         System.out.println();
+    }
+    private void displayGames(List<GameData> listOfChessGames) {
+        for (var gameData : listOfChessGames) {
+            if (!mapOfGames.containsValue(gameData)) {
+                mapOfGames.put(gameNumber, gameData);
+                gameNumber++;
+            }
+        }
+        for (int key : mapOfGames.keySet()) {
+            GameData gameData = mapOfGames.get(key);
+            System.out.println(key + ": " + gameData.gameName() + ", White: " + gameData.whiteUsername() + ", Black: " + gameData.blackUsername());
+        }
     }
     private void joinGame() {
 
