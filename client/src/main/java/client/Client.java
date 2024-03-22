@@ -7,10 +7,7 @@ import model.GameData;
 import response.ListGamesResponse;
 import ui.ChessBoardPrinter;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 public class Client {
     Scanner scanner = new Scanner(System.in);
@@ -125,10 +122,22 @@ public class Client {
     private void register() {
         System.out.println("Please enter a new username:");
         String username = scanner.nextLine();
+        if (username.isEmpty()) {
+            System.out.println("Username can't be empty!");
+            return;
+        }
         System.out.println("Now enter your password:");
         String password = scanner.nextLine();
+        if (password.isEmpty()) {
+            System.out.println("Password can't be empty!");
+            return;
+        }
         System.out.println("Enter your email:");
         String email = scanner.nextLine();
+        if (email.isEmpty()) {
+            System.out.println("Email can't be empty!");
+            return;
+        }
         authData = serverFacade.register(username,password,email);
         menuScreenLoop();
     }

@@ -1,6 +1,7 @@
 package clientTests;
 
 import client.ServerFacade;
+import model.AuthData;
 import org.junit.jupiter.api.*;
 import server.Server;
 
@@ -30,8 +31,10 @@ public class ServerFacadeTests {
         Assertions.assertTrue(true);
         String username = "lDrac360l";
         String password = "THE PASSWORD";
-        String email = "email"
-        serverFacade.register(username, password, email);
+        String email = "email";
+        AuthData authData = serverFacade.register(username, password, email);
+        AuthData shouldBeAuthData = new AuthData("as;ldkfj as;ldkfj ", lDrac360l);
+        Assertions.assertEquals(authData.username(), ass)
     }
 
 }
