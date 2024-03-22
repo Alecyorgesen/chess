@@ -102,6 +102,7 @@ public class HTTPRequest {
             connection.setDoOutput(true);
 
             connection.addRequestProperty("Authorization", authData.authToken());
+
             try (OutputStream requestBody = connection.getOutputStream()) {
                 requestBody.write(("{ \"gameName\":\"" + gameName + "\"}").getBytes());
             }
@@ -125,6 +126,8 @@ public class HTTPRequest {
             connection.setReadTimeout(5000);
             connection.setRequestMethod("GET");
             connection.setDoOutput(true);
+
+            connection.addRequestProperty("Authorization", authData.authToken());
 
             connection.connect();
 

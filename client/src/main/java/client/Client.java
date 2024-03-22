@@ -1,10 +1,13 @@
 package client;
 
 import chess.ChessBoard;
+import chess.ChessGame;
 import model.AuthData;
+import model.GameData;
 import response.ListGamesResponse;
 import ui.ChessBoardPrinter;
 
+import java.util.List;
 import java.util.Scanner;
 
 public class Client {
@@ -150,8 +153,16 @@ public class Client {
         System.out.println();
     }
     private void listGames() {
-        System.out.println("List of game:");
         ListGamesResponse listGamesResponse = serverFacade.listGames(authData);
+        if (listGamesResponse != null) {
+            System.out.println("List of games:");
+            List<GameData> listOfChessGames = listGamesResponse.games();
+            for (int i = 0; i < listOfChessGames.size(); i++) {
+                GameData gameData = listOfChessGames.get(i);
+                System.out.println(i+1 + ": " + gameData.gameName() + ", White: " + gameData.whiteUsername() + ", Black: " + gameData.blackUsername());
+            }
+        }
+        System.out.println();
     }
     private void joinGame() {
 

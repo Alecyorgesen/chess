@@ -39,8 +39,11 @@ public class ServerFacade {
     public ListGamesResponse listGames(AuthData authData) {
         try {
             ListGamesResponse listGamesResponse = httpRequest.listGamesRequest(authData, "http://localhost:8080/game");
+            if (listGamesResponse == null) {
+                System.out.println("Something went wrong.");
+            }
             if (authData == null) {
-                System.out.println("Something went wrong, game not created.");
+                System.out.println("Not authorized.");
             }
             return listGamesResponse;
         } catch (Exception ex) {
