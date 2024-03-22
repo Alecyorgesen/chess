@@ -56,7 +56,7 @@ public class HTTPRequest {
             connection.connect();
 
             try (OutputStream requestBody = connection.getOutputStream()) {
-                requestBody.write(("{ \"username\":\""+ username +"\", \"password\":\""+ password +"\"").getBytes());
+                requestBody.write(("{ \"username\":\""+ username +"\", \"password\":\""+ password +"\" }").getBytes());
             }
             if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 InputStream responseBody = connection.getInputStream();
@@ -71,5 +71,26 @@ public class HTTPRequest {
             throw new RuntimeException(ex.getMessage());
         }
     }
+    public void logoutRequest(AuthData authData, String urlString) {
+        try {
+            URL url = new URL(urlString);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setReadTimeout(5000);
+            connection.setRequestMethod("DELETE");
+            connection.setDoOutput(true);
 
+            connection.addRequestProperty("Authorization", authData.authToken());
+
+            connection.connect();
+
+            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+
+            } else {
+                InputStream responseBody = connection.getErrorStream();
+                System.out.println(responseBody.toString());
+            }
+        } catch (Exception ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
+    }
 }

@@ -28,8 +28,12 @@ public class ServerFacade {
         }
         return null;
     }
-    public void logout() {
-
+    public void logout(AuthData authData) {
+        try {
+            httpRequest.logoutRequest(authData,"http://localhost:8080/session");
+        } catch (Exception exception) {
+            System.out.println("Got an exception: " + exception.getMessage());
+        }
     }
     public void listGames() {
 

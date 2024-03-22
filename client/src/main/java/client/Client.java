@@ -18,7 +18,8 @@ public class Client {
     }
 
     private void beforeLoginLoop() {
-        while (true) {
+        Boolean shouldLoop = true;
+        while (shouldLoop) {
             System.out.println("Welcome to Chess!!! Please select an option by choosing the appropriate number:");
             System.out.println(" ");
             System.out.println("1. Help.");
@@ -33,7 +34,9 @@ public class Client {
                     continue;
                 case "2":
                 case "quit":
-                    break;
+                    System.out.println("Bye! Have a good one! Come back soon!");
+                    shouldLoop = false;
+                    continue;
                 case "3":
                 case "login":
                     login();
@@ -50,13 +53,16 @@ public class Client {
         }
     }
     private void menuScreenLoop() {
-        while (true) {
+        Boolean shouldLoop = true;
+        while (shouldLoop) {
             System.out.println("Welcome to Chess!!! Please select an option by choosing the appropriate number:");
-            System.out.println(" ");
+            System.out.println();
             System.out.println("1. Help.");
-            System.out.println("2. Quit.");
-            System.out.println("3. Login existing user.");
-            System.out.println("4. Register a new user.");
+            System.out.println("2. Logout.");
+            System.out.println("3. Create Game.");
+            System.out.println("4. List Games.");
+            System.out.println("5. Join Game.");
+            System.out.println("6. Join Observer.");
             String line = scanner.nextLine();
             switch (line) {
                 case "1":
@@ -66,22 +72,23 @@ public class Client {
                 case "2":
                 case "logout":
                     logout();
+                    shouldLoop = false;
                     continue;
                 case "3":
                 case "create game":
-                    createGame();
+//                    createGame();
                     continue;
                 case "4":
                 case "list games":
-                    listGames();
+//                    listGames();
                     continue;
                 case "5":
                 case "join game":
-                    joinGame();
+//                    joinGame();
                     continue;
                 case "6":
                 case "join observer":
-                    joinObserver();
+//                    joinObserver();
                 default:
                     System.out.println("Enter 'help', 'logout', 'create game', 'list games', 'join game', or 'join observer'.");
                     System.out.println("Or enter the adjacent number.");
@@ -103,7 +110,11 @@ public class Client {
         System.out.println("What's your password?");
         String password = scanner.nextLine();
         authData = serverFacade.login(username, password);
-        menuScreenLoop();
+        if (authData != null) {
+            menuScreenLoop();
+            return;
+        }
+        System.out.println("User or password incorrect.");
     }
     private void register() {
         System.out.println("Please enter a new username:");
@@ -120,7 +131,14 @@ public class Client {
         System.out.println("Help: you just did this. But for future reference, you can press 1 or 'help' to make it work.");
         System.out.println("Logout: 'logout' or 2 signs you out, and you'll have to log back in again to play.");
         System.out.println("Create Game: type 'create game' or 3 to create a new game! You'll have to input a name for the game.");
-        System.out.println("List Games: type 'register' or 4 to create a new user. I'll be waiting for your awesomeness to join my game!");
+        System.out.println("List Games: type 'list games' or 4 to get a list of the games.");
+        System.out.println("Join Game: type 'join game' or 5 to get a list of the games that you can join.");
+        System.out.println("Join Observer: type 'join observer' or 6 to join a game just to watch and not to play.");
         System.out.println();
+    }
+    private void logout() {
+        System.out.println("Bye! Join again sometime!");
+        System.out.println();
+        serverFacade.logout(authData);
     }
 }
