@@ -34,7 +34,7 @@ public class ServerFacadeTests {
         String email = "email";
         AuthData authData = serverFacade.register(username, password, email);
         AuthData shouldBeAuthData = new AuthData("as;ldkfj as;ldkfj ", lDrac360l);
-        Assertions.assertEquals(authData.username(), ass)
+        Assertions.assertEquals(authData.username(), a)
     }
 
 }
