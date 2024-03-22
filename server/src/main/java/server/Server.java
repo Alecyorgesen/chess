@@ -2,6 +2,7 @@ package server;
 import dataAccess.DataAccessException;
 import dataAccess.DatabaseManager;
 import handler.*;
+import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import spark.*;
 
 import javax.xml.crypto.Data;
