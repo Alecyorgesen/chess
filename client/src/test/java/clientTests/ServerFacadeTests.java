@@ -27,7 +27,7 @@ public class ServerFacadeTests {
 
 
     @Test
-    public void tests() {
+    public void test1() {
         Assertions.assertTrue(true);
         String username = "lDrac360l";
         String password = "THE PASSWORD";
@@ -36,5 +36,14 @@ public class ServerFacadeTests {
         AuthData shouldBeAuthData = new AuthData("as;ldkfj as;ldkfj ", lDrac360l);
         Assertions.assertEquals(authData.username(), shouldBeAuthData.username());
     }
+    @Test
+    public void test2() {
+        try {
+            serverFacade.register("heyo", "password", "email");
+            serverFacade.register("heyo", "me", "email");
+            throw new TestException("should not have worked same name no good");
+        } catch (Exception ex) {
 
+        }
+    }
 }
