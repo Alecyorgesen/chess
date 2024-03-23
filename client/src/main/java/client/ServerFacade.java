@@ -5,7 +5,7 @@ import response.ListGamesResponse;
 
 public class ServerFacade {
     int port;
-    ServerFacade(int port) {
+    public ServerFacade(int port) {
         this.port = port;
     }
     HTTPRequest httpRequest = new HTTPRequest();
