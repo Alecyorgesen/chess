@@ -1,5 +1,9 @@
 package client;
 
+import com.google.gson.Gson;
+import webSocketMessages.serverMessages.ServerMessage;
+import webSocketMessages.userCommands.UserGameCommand;
+
 import javax.websocket.*;
 import java.net.URI;
 import java.util.Scanner;
@@ -31,7 +35,9 @@ public class WSClient extends Endpoint {
     }
     @OnMessage
     public void onMessage(String message) {
-
+        ServerMessage serverMessage = new Gson().fromJson(message, serverMessage.class);
+        switch (serverMessage.getCommandType()) {
+        }
     }
     public void send(String msg) throws Exception {
         this.session.getBasicRemote().sendText(msg);

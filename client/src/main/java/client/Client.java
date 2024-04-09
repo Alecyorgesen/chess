@@ -7,6 +7,7 @@ import model.AuthData;
 import model.GameData;
 import response.ListGamesResponse;
 import ui.ChessBoardPrinter;
+import webSocketMessages.userCommands.DrawBoard;
 import webSocketMessages.userCommands.UserGameCommand;
 
 import java.util.*;
@@ -224,7 +225,7 @@ public class Client {
                 return;
             }
             serverFacade.joinGame(authData, gameID, teamColor);
-            insideGameLoop();
+            insideGameLoop(gameID, teamColor);
 
             System.out.println("Joined Game!");
             chessBoardPrinter.printChessBoard(chessBoard);
@@ -255,7 +256,7 @@ public class Client {
     }
 
 
-    public void insideGameLoop() {
+    public void insideGameLoop(int gameID, ChessGame.TeamColor teamColor) {
         WSClient wsClient;
         try {
             wsClient = new WSClient();
@@ -279,7 +280,7 @@ public class Client {
                     break;
                 case "2":
                 case "redraw":
-                    redrawChessBoard(wsClient);
+                    redrawChessBoard(wsClient, gameID, teamColor);
                     break;
                 case "3":
                 case "leave":
@@ -312,11 +313,11 @@ public class Client {
         System.out.println("Resign: This ends the game. Your opponent automatically wins if you do this option");
         System.out.println("Highlight Legal Moves: This lets you see the moves that you are allowed to make. Type 'legal moves' or 6 to select.");
     }
-    private void redrawChessBoard(WSClient wsClient) {
+    private void redrawChessBoard(WSClient wsClient, int gameID, ChessGame.TeamColor teamColor) {
         try {
             UserGameCommand.CommandType commandType = UserGameCommand.CommandType.DRAW_BOARD;
-            UserGameCommand userGameCommand = new UserGameCommand(authData.authToken());
-            String json = new Gson().toJson(userGameCommand);
+            DrawBoard drawBoard = new DrawBoard(authData.authToken(), gameID);
+            String json = new Gson().toJson(drawBoard);
             wsClient.send(json);
         } catch (Exception ex) {
             throw new RuntimeException(ex.getMessage());
