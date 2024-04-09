@@ -291,7 +291,7 @@ public class Client {
                     break;
                 case "4":
                 case "move":
-                    makeMove(wsClient, authData);
+                    makeMove(wsClient, authData, gameData);
                     break;
                 case "5":
                 case "resign":
@@ -360,7 +360,7 @@ public class Client {
             }
         }
         ChessMove chessMove = new ChessMove(startPosition, endPosition, promotionPiece);
-        serverFacade.makeMove(wsClient, gameData.gameID(), chessMove);
+        serverFacade.makeMove(wsClient, authData, gameData.gameID(), chessMove);
     }
     private ChessPiece.PieceType selectPromotionPiece() {
         System.out.println("Please select which piece you would like to promote to:");

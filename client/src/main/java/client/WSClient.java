@@ -4,9 +4,11 @@ import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
 import model.AuthData;
+import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.DrawBoard;
 import webSocketMessages.userCommands.Leave;
+import webSocketMessages.userCommands.MakeMove;
 import webSocketMessages.userCommands.UserGameCommand;
 
 import javax.websocket.*;
@@ -40,9 +42,11 @@ public class WSClient extends Endpoint {
     }
     @OnMessage
     public void onMessage(String message) {
-        ServerMessage serverMessage = new Gson().fromJson(message, serverMessage.class);
-        switch (serverMessage.getServerMessageType()) {
-            case ServerMessage.ServerMessageType.LOAD_GAME -> loadGame();
+        LoadGame loadGame = new Gson().fromJson(message, LoadGame.class);
+        switch (loadGame.getServerMessageType()) {
+            case LOAD_GAME -> loadGame();
+            case ERROR -> serverError();
+            case NOTIFICATION -> notifyClient();
         }
     }
     public void send(String msg) throws Exception {
@@ -58,14 +62,22 @@ public class WSClient extends Endpoint {
         String json = new Gson().toJson(leave);
         wsClient.send(json);
     }
-    public void makeMove(WSClient wsClient, int gameID, ChessMove chessMove) {
-
+    public void makeMove(WSClient wsClient, AuthData authData, int gameID, ChessMove chessMove) throws Exception {
+        MakeMove makeMove = new MakeMove(authData.authToken(),gameID,chessMove);
+        String json = new Gson().toJson(makeMove);
+        wsClient.send(json);
     }
     @OnOpen
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
     public void loadGame() {
+
+    }
+    public void serverError() {
+
+    }
+    public void notifyClient() {
 
     }
 }

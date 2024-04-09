@@ -101,9 +101,9 @@ public class ServerFacade {
             throw new RuntimeException(ex.getMessage());
         }
     }
-    public void makeMove(WSClient wsClient, int gameID, ChessMove chessMove) {
+    public void makeMove(WSClient wsClient, AuthData authData, int gameID, ChessMove chessMove) {
         try {
-            wsClient.makeMove(wsClient, gameID, chessMove);
+            wsClient.makeMove(wsClient, authData, gameID, chessMove);
         } catch (Exception ex) {
             throw new RuntimeException(ex.getMessage());
         }
