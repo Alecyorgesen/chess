@@ -13,6 +13,18 @@ public class ChessBoardPrinter {
     final int SQUARE_LENGTH = 3;
     final int CHESS_BOARD_WIDTH = 10 * SQUARE_LENGTH;
     final String BLANK_SQUARE = "   ";
+    public void printBoardFromWhiteSide(ChessBoard board) {
+        board.resetBoard();
+        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+        out.print(EscapeSequences.ERASE_SCREEN);
+        printBoardFromWhitePerspective(out, board);
+    }
+    public void printBoardFromBlackSide(ChessBoard board) {
+        board.resetBoard();
+        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+        out.print(EscapeSequences.ERASE_SCREEN);
+        printBoardFromBlackPerspective(out, board);
+    }
     public void printChessBoard(ChessBoard board) {
         board.resetBoard();
 

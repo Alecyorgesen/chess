@@ -108,4 +108,7 @@ public class ServerFacade {
             throw new RuntimeException(ex.getMessage());
         }
     }
+    public void resign(WSClient wsClient, AuthData authData, int gameID) {
+
+    }
 }

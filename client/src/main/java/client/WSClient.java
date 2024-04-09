@@ -1,10 +1,15 @@
 package client;
 
+import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
 import model.AuthData;
+import model.GameData;
+import ui.ChessBoardPrinter;
+import webSocketMessages.serverMessages.Error;
 import webSocketMessages.serverMessages.LoadGame;
+import webSocketMessages.serverMessages.Notification;
 import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.DrawBoard;
 import webSocketMessages.userCommands.Leave;
@@ -26,7 +31,7 @@ public class WSClient extends Endpoint {
 //            ws.send(scanner.nextLine());
 //        }
 //    }
-
+    ChessBoardPrinter chessBoardPrinter = new ChessBoardPrinter();
     public Session session;
 
     public WSClient() throws Exception {
@@ -42,11 +47,19 @@ public class WSClient extends Endpoint {
     }
     @OnMessage
     public void onMessage(String message) {
-        LoadGame loadGame = new Gson().fromJson(message, LoadGame.class);
-        switch (loadGame.getServerMessageType()) {
-            case LOAD_GAME -> loadGame();
-            case ERROR -> serverError();
-            case NOTIFICATION -> notifyClient();
+        ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+        switch (serverMessage.getServerMessageType()) {
+            case LOAD_GAME:
+                LoadGame loadGame = (LoadGame) serverMessage;
+                this.loadGame(loadGame.getGame(), loadGame.getPlayerColor());
+                break;
+            case ERROR:
+                Error error = (Error) serverMessage;
+                serverError(error.getErrorMessage());
+                break;
+            case NOTIFICATION:
+                Notification notification = (Notification) serverMessage;
+                notifyClient(notification.getMessage());
         }
     }
     public void send(String msg) throws Exception {
@@ -71,13 +84,17 @@ public class WSClient extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void loadGame() {
-
+    public void loadGame(GameData gameData, ChessGame.TeamColor playerColor) {
+        if (playerColor == ChessGame.TeamColor.WHITE) {
+            chessBoardPrinter.printBoardFromWhiteSide(gameData.game().getBoard());
+        } else {
+            chessBoardPrinter.printBoardFromBlackSide(gameData.game().getBoard());
+        }
     }
-    public void serverError() {
-
+    public void serverError(String errorMessage) {
+        System.out.println("The server sent an error: " + errorMessage);
     }
-    public void notifyClient() {
-
+    public void notifyClient(String message) {
+        System.out.println(message);
     }
 }

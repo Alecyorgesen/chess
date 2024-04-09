@@ -295,12 +295,12 @@ public class Client {
                     break;
                 case "5":
                 case "resign":
-                    serverFacade.resign();
+                    serverFacade.resign(wsClient, authData, gameID);
                     shouldLoop = false;
                     break;
                 case "6":
                 case "legal moves":
-                    serverFacade.highlightLegalMoves();
+                    highlightLegalMoves(wsClient, authData);
                     break;
                 default:
                     System.out.println("Please enter the number of the option you would like to select.");
@@ -316,6 +316,22 @@ public class Client {
         System.out.println("Highlight Legal Moves: This lets you see the moves that you are allowed to make. Type 'legal moves' or 6 to select.");
     }
     private void makeMove(WSClient wsClient, AuthData authData, GameData gameData) {
+        GameData updatedGameData = null;
+        try {
+            ListGamesResponse listGamesResponse = serverFacade.listGames(authData);
+            List<GameData> listOfGameData = listGamesResponse.games();
+            for (GameData gameDataFromLoop : listOfGameData) {
+                if (gameDataFromLoop.gameID() == gameData.gameID()) {
+                    updatedGameData = gameDataFromLoop;
+                }
+            }
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+        if (updatedGameData == null) {
+            System.out.println("Game not found. Try leaving and reconnecting.");
+            return;
+        }
         System.out.println("Please select the coordinates of the piece you would like to move:");
         String position1 = scanner.nextLine();
         System.out.println("Now enter the location you want to move the piece to:");
@@ -347,7 +363,7 @@ public class Client {
         ChessPiece.PieceType promotionPiece = null;
         ChessPosition startPosition = new ChessPosition(row1, column1);
         ChessPosition endPosition = new ChessPosition(row2, column2);
-        ChessPiece chessPiece = gameData.game().getBoard().getPiece(startPosition);
+        ChessPiece chessPiece = updatedGameData.game().getBoard().getPiece(startPosition);
         if (chessPiece.getPieceType() == ChessPiece.PieceType.PAWN) {
             if (chessPiece.getTeamColor() == ChessGame.TeamColor.WHITE) {
                 if (row2 == 8) {
@@ -360,7 +376,7 @@ public class Client {
             }
         }
         ChessMove chessMove = new ChessMove(startPosition, endPosition, promotionPiece);
-        serverFacade.makeMove(wsClient, authData, gameData.gameID(), chessMove);
+        serverFacade.makeMove(wsClient, authData, updatedGameData.gameID(), chessMove);
     }
     private ChessPiece.PieceType selectPromotionPiece() {
         System.out.println("Please select which piece you would like to promote to:");
@@ -376,5 +392,9 @@ public class Client {
             case "4", "knight" -> ChessPiece.PieceType.KNIGHT;
             default -> ChessPiece.PieceType.QUEEN;
         };
+    }
+
+    public void highlightLegalMoves(WSClient wsClient, AuthData authData) {
+
     }
 }
