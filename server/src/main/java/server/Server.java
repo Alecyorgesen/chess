@@ -33,6 +33,8 @@ public class Server {
 
         // Register your endpoints and handle exceptions here.
 
+        Spark.webSocket("/connect", WSServer.class);
+
         Spark.post("/user", registerHandler::register);
         Spark.post("/session", loginHandler::login);
         Spark.delete("/session", logoutHandler::logout);

@@ -2,10 +2,12 @@ package client;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
 import response.ListGamesResponse;
 import ui.ChessBoardPrinter;
+import webSocketMessages.userCommands.UserGameCommand;
 
 import java.util.*;
 
@@ -222,6 +224,8 @@ public class Client {
                 return;
             }
             serverFacade.joinGame(authData, gameID, teamColor);
+            insideGameLoop();
+
             System.out.println("Joined Game!");
             chessBoardPrinter.printChessBoard(chessBoard);
             return;
@@ -248,5 +252,74 @@ public class Client {
 //        serverFacade.observeGame(authData, gameID);
         System.out.println("Observing Game!");
         chessBoardPrinter.printChessBoard(chessBoard);
+    }
+
+
+    public void insideGameLoop() {
+        WSClient wsClient;
+        try {
+            wsClient = new WSClient();
+        } catch (Exception ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
+        System.out.println("Please select one of the options below:");
+        System.out.println("1. Help");
+        System.out.println("2. Redraw Chess Board");
+        System.out.println("3. Leave");
+        System.out.println("4. Make Move");
+        System.out.println("5. Resign");
+        System.out.println("6. Highlight Legal Moves");
+        boolean shouldLoop = true;
+        while (shouldLoop) {
+            String input = scanner.nextLine();
+            switch (input) {
+                case "1":
+                case "help":
+                    helpDuringGame();
+                    break;
+                case "2":
+                case "redraw":
+                    redrawChessBoard(wsClient);
+                    break;
+                case "3":
+                case "leave":
+                    leave();
+                    shouldLoop = false;
+                    break;
+                case "4":
+                case "move":
+                    makeMove();
+                    break;
+                case "5":
+                case "resign":
+                    resign();
+                    shouldLoop = false;
+                    break;
+                case "6":
+                case "legal moves":
+                    highlightLegalMoves();
+                    break;
+                default:
+                    System.out.println("Please enter the number of the option you would like to select.");
+            }
+        }
+    }
+    private void helpDuringGame() {
+        System.out.println("Help: I hope you know what help does by now.");
+        System.out.println("Redraw Chess Board: This let's you see the current state of the game. 'Redraw' or 2.");
+        System.out.println("Leave: This lets you leave the game. You can resume whenever you like.");
+        System.out.println("Make Move: Select this and enter the coordinates of the piece you would like to move and its destination. To select, type 'move'.");
+        System.out.println("Resign: This ends the game. Your opponent automatically wins if you do this option");
+        System.out.println("Highlight Legal Moves: This lets you see the moves that you are allowed to make. Type 'legal moves' or 6 to select.");
+    }
+    private void redrawChessBoard(WSClient wsClient) {
+        try {
+            UserGameCommand.CommandType commandType = UserGameCommand.CommandType.DRAW_BOARD;
+            UserGameCommand userGameCommand = new UserGameCommand(authData.authToken());
+            String json = new Gson().toJson(userGameCommand);
+            wsClient.send(json);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
     }
 }
