@@ -1,7 +1,6 @@
 package client;
 
-import chess.ChessBoard;
-import chess.ChessGame;
+import chess.*;
 import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
@@ -225,8 +224,11 @@ public class Client {
                 return;
             }
             serverFacade.joinGame(authData, gameID, teamColor);
-            insideGameLoop(gameID, teamColor);
-
+            if (teamColor.equals("WHITE")) {
+                insideGameLoop(gameID, ChessGame.TeamColor.WHITE, gameData);
+            } else {
+                insideGameLoop(gameID, ChessGame.TeamColor.BLACK, gameData);
+            }
             System.out.println("Joined Game!");
             chessBoardPrinter.printChessBoard(chessBoard);
             return;
@@ -256,7 +258,7 @@ public class Client {
     }
 
 
-    public void insideGameLoop(int gameID, ChessGame.TeamColor teamColor) {
+    public void insideGameLoop(int gameID, ChessGame.TeamColor teamColor, GameData gameData) {
         WSClient wsClient;
         try {
             wsClient = new WSClient();
@@ -280,25 +282,25 @@ public class Client {
                     break;
                 case "2":
                 case "redraw":
-                    redrawChessBoard(wsClient, gameID, teamColor);
+                    serverFacade.redrawChessBoard(wsClient, authData, gameID, teamColor);
                     break;
                 case "3":
                 case "leave":
-                    leave();
+                    serverFacade.leave(wsClient, authData, gameID);
                     shouldLoop = false;
                     break;
                 case "4":
                 case "move":
-                    makeMove();
+                    makeMove(wsClient, authData);
                     break;
                 case "5":
                 case "resign":
-                    resign();
+                    serverFacade.resign();
                     shouldLoop = false;
                     break;
                 case "6":
                 case "legal moves":
-                    highlightLegalMoves();
+                    serverFacade.highlightLegalMoves();
                     break;
                 default:
                     System.out.println("Please enter the number of the option you would like to select.");
@@ -313,14 +315,66 @@ public class Client {
         System.out.println("Resign: This ends the game. Your opponent automatically wins if you do this option");
         System.out.println("Highlight Legal Moves: This lets you see the moves that you are allowed to make. Type 'legal moves' or 6 to select.");
     }
-    private void redrawChessBoard(WSClient wsClient, int gameID, ChessGame.TeamColor teamColor) {
-        try {
-            UserGameCommand.CommandType commandType = UserGameCommand.CommandType.DRAW_BOARD;
-            DrawBoard drawBoard = new DrawBoard(authData.authToken(), gameID);
-            String json = new Gson().toJson(drawBoard);
-            wsClient.send(json);
-        } catch (Exception ex) {
-            throw new RuntimeException(ex.getMessage());
+    private void makeMove(WSClient wsClient, AuthData authData, GameData gameData) {
+        System.out.println("Please select the coordinates of the piece you would like to move:");
+        String position1 = scanner.nextLine();
+        System.out.println("Now enter the location you want to move the piece to:");
+        String position2 = scanner.nextLine();
+        int row1 = Integer.parseInt(String.valueOf(position1.charAt(1)));
+        int column1 = switch (String.valueOf(position1.charAt(0))) {
+            case "A", "a" -> 1;
+            case "B", "b" -> 2;
+            case "C", "c" -> 3;
+            case "D", "d" -> 4;
+            case "E", "e" -> 5;
+            case "F", "f" -> 6;
+            case "G", "g" -> 7;
+            case "H", "h" -> 8;
+            default -> 0;
+        };
+        int row2 = Integer.parseInt(String.valueOf(position2.charAt(1)));
+        int column2 = switch (String.valueOf(position2.charAt(0))) {
+            case "A", "a" -> 1;
+            case "B", "b" -> 2;
+            case "C", "c" -> 3;
+            case "D", "d" -> 4;
+            case "E", "e" -> 5;
+            case "F", "f" -> 6;
+            case "G", "g" -> 7;
+            case "H", "h" -> 8;
+            default -> 0;
+        };
+        ChessPiece.PieceType promotionPiece = null;
+        ChessPosition startPosition = new ChessPosition(row1, column1);
+        ChessPosition endPosition = new ChessPosition(row2, column2);
+        ChessPiece chessPiece = gameData.game().getBoard().getPiece(startPosition);
+        if (chessPiece.getPieceType() == ChessPiece.PieceType.PAWN) {
+            if (chessPiece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                if (row2 == 8) {
+                    promotionPiece = selectPromotionPiece();
+                }
+            } else {
+                if (row2 == 1) {
+                    promotionPiece = selectPromotionPiece();
+                }
+            }
         }
+        ChessMove chessMove = new ChessMove(startPosition, endPosition, promotionPiece);
+        serverFacade.makeMove(wsClient, gameData.gameID(), chessMove);
+    }
+    private ChessPiece.PieceType selectPromotionPiece() {
+        System.out.println("Please select which piece you would like to promote to:");
+        System.out.println("1. Queen");
+        System.out.println("2. Rook");
+        System.out.println("3. Bishop");
+        System.out.println("4. Knight");
+        String input = scanner.nextLine();
+        return switch (input) {
+            case "1", "queen" -> ChessPiece.PieceType.QUEEN;
+            case "2", "rook" -> ChessPiece.PieceType.ROOK;
+            case "3", "bishop" -> ChessPiece.PieceType.BISHOP;
+            case "4", "knight" -> ChessPiece.PieceType.KNIGHT;
+            default -> ChessPiece.PieceType.QUEEN;
+        };
     }
 }

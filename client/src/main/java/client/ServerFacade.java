@@ -1,7 +1,12 @@
 package client;
 
+import chess.ChessGame;
+import chess.ChessMove;
+import com.google.gson.Gson;
 import model.AuthData;
 import response.ListGamesResponse;
+import webSocketMessages.userCommands.DrawBoard;
+import webSocketMessages.userCommands.UserGameCommand;
 
 public class ServerFacade {
     int port;
@@ -80,6 +85,27 @@ public class ServerFacade {
             httpRequest.clearGameRequest("http://localhost:8080/db");
         } catch (Exception ex) {
             System.out.println("Got an exception: " + ex.getMessage());
+        }
+    }
+    public void redrawChessBoard(WSClient wsClient, AuthData authData, int gameID, ChessGame.TeamColor teamColor) {
+        try {
+            wsClient.redrawChessBoard(wsClient, authData, gameID, teamColor);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
+    }
+    public void leave(WSClient wsClient, AuthData authData, int gameID){
+        try {
+            wsClient.leave(wsClient, authData, gameID);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
+    }
+    public void makeMove(WSClient wsClient, int gameID, ChessMove chessMove) {
+        try {
+            wsClient.makeMove(wsClient, gameID, chessMove);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex.getMessage());
         }
     }
 }
