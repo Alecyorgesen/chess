@@ -229,8 +229,6 @@ public class Client {
             } else {
                 insideGameLoop(gameID, ChessGame.TeamColor.BLACK, gameData);
             }
-            System.out.println("Joined Game!");
-            chessBoardPrinter.printChessBoard(chessBoard);
             return;
         }
         System.out.println("Invalid input.");
@@ -254,9 +252,9 @@ public class Client {
 
 //        serverFacade.observeGame(authData, gameID);
         System.out.println("Observing Game!");
-        chessBoardPrinter.printChessBoard(chessBoard);
+//        chessBoardPrinter.printChessBoard(chessBoard);
     }
-
+// You'll need to add functionality for what you can do if you are observing.
 
     public void insideGameLoop(int gameID, ChessGame.TeamColor teamColor, GameData gameData) {
         WSClient wsClient;
@@ -265,6 +263,7 @@ public class Client {
         } catch (Exception ex) {
             throw new RuntimeException(ex.getMessage());
         }
+        serverFacade.joinThroughWebSocket(wsClient,authData,gameID,teamColor);
         System.out.println("Please select one of the options below:");
         System.out.println("1. Help");
         System.out.println("2. Redraw Chess Board");

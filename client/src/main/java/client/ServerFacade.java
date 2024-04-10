@@ -96,21 +96,28 @@ public class ServerFacade {
     }
     public void leave(WSClient wsClient, AuthData authData, int gameID){
         try {
-            wsClient.leave(wsClient, authData, gameID);
+            wsClient.leave(authData, gameID);
         } catch (Exception ex) {
             throw new RuntimeException(ex.getMessage());
         }
     }
     public void makeMove(WSClient wsClient, AuthData authData, int gameID, ChessMove chessMove) {
         try {
-            wsClient.makeMove(wsClient, authData, gameID, chessMove);
+            wsClient.makeMove(authData, gameID, chessMove);
         } catch (Exception ex) {
             throw new RuntimeException(ex.getMessage());
         }
     }
     public void resign(WSClient wsClient, AuthData authData, int gameID) {
         try {
-            wsClient.resign(wsClient, authData, gameID);
+            wsClient.resign(authData, gameID);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
+    }
+    public void joinThroughWebSocket(WSClient wsClient, AuthData authData, int gameID, ChessGame.TeamColor teamColor) {
+        try {
+            wsClient.joinPlayer(authData, gameID, teamColor);
         } catch (Exception ex) {
             throw new RuntimeException(ex.getMessage());
         }

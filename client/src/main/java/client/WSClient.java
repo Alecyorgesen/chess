@@ -1,13 +1,12 @@
 package client;
 
-import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
 import ui.ChessBoardPrinter;
-import webSocketMessages.serverMessages.Error;
+import webSocketMessages.serverMessages.ErrorMessage;
 import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
 import webSocketMessages.serverMessages.ServerMessage;
@@ -15,7 +14,6 @@ import webSocketMessages.userCommands.*;
 
 import javax.websocket.*;
 import java.net.URI;
-import java.util.Scanner;
 
 public class WSClient extends Endpoint {
 
@@ -51,8 +49,8 @@ public class WSClient extends Endpoint {
                 this.loadGame(loadGame.getGame(), loadGame.getPlayerColor());
                 break;
             case ERROR:
-                Error error = (Error) serverMessage;
-                serverError(error.getErrorMessage());
+                ErrorMessage errorMessage = (ErrorMessage) serverMessage;
+                serverError(errorMessage.getErrorMessage());
                 break;
             case NOTIFICATION:
                 Notification notification = (Notification) serverMessage;
@@ -65,17 +63,17 @@ public class WSClient extends Endpoint {
     public void redrawChessBoard(WSClient wsClient, AuthData authData, int gameID, ChessGame.TeamColor teamColor) throws Exception {
         DrawBoard drawBoard = new DrawBoard(authData.authToken(), gameID);
         String json = new Gson().toJson(drawBoard);
-        wsClient.send(json);
+        this.send(json);
     }
-    public void leave(WSClient wsClient, AuthData authData, int gameID) throws Exception {
+    public void leave(AuthData authData, int gameID) throws Exception {
         Leave leave = new Leave(authData.authToken(), gameID);
         String json = new Gson().toJson(leave);
-        wsClient.send(json);
+        this.send(json);
     }
-    public void makeMove(WSClient wsClient, AuthData authData, int gameID, ChessMove chessMove) throws Exception {
+    public void makeMove(AuthData authData, int gameID, ChessMove chessMove) throws Exception {
         MakeMove makeMove = new MakeMove(authData.authToken(),gameID,chessMove);
         String json = new Gson().toJson(makeMove);
-        wsClient.send(json);
+        this.send(json);
     }
     @OnOpen
     public void onOpen(Session session, EndpointConfig endpointConfig) {
@@ -94,9 +92,14 @@ public class WSClient extends Endpoint {
     public void notifyClient(String message) {
         System.out.println(message);
     }
-    public void resign(WSClient wsClient, AuthData authData, int gameID) throws Exception {
+    public void resign(AuthData authData, int gameID) throws Exception {
         Resign resign = new Resign(authData.authToken(),gameID);
         String json = new Gson().toJson(resign);
-        wsClient.send(json);
+        this.send(json);
+    }
+    public void joinPlayer(AuthData authData, int gameID, ChessGame.TeamColor teamColor) throws Exception {
+        JoinPlayer joinPlayer = new JoinPlayer(authData.authToken(),gameID,teamColor);
+        String json = new Gson().toJson(joinPlayer);
+        this.send(json);
     }
 }

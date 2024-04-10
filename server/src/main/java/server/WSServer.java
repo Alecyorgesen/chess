@@ -1,31 +1,39 @@
 package server;
 
+import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.*;
 import webSocketMessages.userCommands.*;
+
+import java.util.HashSet;
+import java.util.List;
 
 import static webSocketMessages.userCommands.UserGameCommand.CommandType.*;
 
 @WebSocket
 public class WSServer {
-
+    static HashSet<Connection> connections = new HashSet<>();
     @OnWebSocketMessage
     public void onMessage(Session session, String msg) throws Exception {
-        GameCommand command = readJson(msg, UserGameCommand.class);
-
-        var conn = getConnection(command.authToken, session);
+        UserGameCommand command = new Gson().fromJson(msg, UserGameCommand.class);
+        Connection connection = new Connection(command.getAuthString(), session);
+        connections.add(connection);
+        var conn = connection.getConnection(command.getAuthString(), session);
         if (conn != null) {
-            switch (command.commandType) {
-                case JOIN_PLAYER -> join(conn, msg);
-                case JOIN_OBSERVER -> observe(conn, msg);
-                case DRAW_BOARD -> drawBoard(conn,msg);
-                case MAKE_MOVE -> move(conn, msg);
-                case LEAVE -> leave(conn, msg);
-                case RESIGN -> resign(conn, msg);
+            switch (command.getCommandType()) {
+                case JOIN_PLAYER -> join(conn, command);
+                case JOIN_OBSERVER -> observe(conn, command);
+                case DRAW_BOARD -> drawBoard(conn, command);
+                case MAKE_MOVE -> move(conn, command);
+                case LEAVE -> leave(conn, command);
+                case RESIGN -> resign(conn, command);
             }
         } else {
-            Connection.sendError(session.getRemote(), "unknown user");
+            Connection.sendError(session, "unknown user");
         }
     }
+    public void join(Connection connection, UserGameCommand userGameCommand) {
+        JoinPlayer joinPlayerCommand = (JoinPlayer) userGameCommand;
 
+    }
 }
