@@ -1,12 +1,11 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
+import chess.*;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 public class ChessBoardPrinter {
@@ -14,16 +13,14 @@ public class ChessBoardPrinter {
     final int CHESS_BOARD_WIDTH = 10 * SQUARE_LENGTH;
     final String BLANK_SQUARE = "   ";
     public void printBoardFromWhiteSide(ChessBoard board) {
-        board.resetBoard();
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(EscapeSequences.ERASE_SCREEN);
-        printBoardFromWhitePerspective(out, board);
+        printBoardFromWhitePerspective(out, board, null, null);
     }
     public void printBoardFromBlackSide(ChessBoard board) {
-        board.resetBoard();
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(EscapeSequences.ERASE_SCREEN);
-        printBoardFromBlackPerspective(out, board);
+        printBoardFromBlackPerspective(out, board, null, null);
     }
     public void printChessBoard(ChessBoard board) {
         board.resetBoard();
@@ -32,27 +29,35 @@ public class ChessBoardPrinter {
 
         out.print(EscapeSequences.ERASE_SCREEN);
 
-        printBoardFromBlackPerspective(out, board);
+        printBoardFromBlackPerspective(out, board, null, null);
         printSpaceInBetweenBoards(out);
-        printBoardFromWhitePerspective(out, board);
+        printBoardFromWhitePerspective(out, board, null, null);
 
 //        out.print(BLANK_SQUARE);
-
-        
+    }
+    public void printBoardFromWhiteSideWithHighlight(ChessBoard board, ChessGame chessGame, ChessPosition chessPosition) {
+        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+        out.print(EscapeSequences.ERASE_SCREEN);
+        printBoardFromWhitePerspective(out, board, chessGame, chessPosition);
+    }
+    public void printBoardFromBlackSideWithHighlight(ChessBoard board, ChessGame chessGame, ChessPosition chessPosition) {
+        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+        out.print(EscapeSequences.ERASE_SCREEN);
+        printBoardFromBlackPerspective(out, board, chessGame, chessPosition);
     }
     void printSpaceInBetweenBoards(PrintStream out) {
         out.print(EscapeSequences.SET_BG_COLOR_DARK_GREY);
         out.print(BLANK_SQUARE.repeat(9));
         out.println();
     }
-    void printBoardFromWhitePerspective(PrintStream out, ChessBoard board) {
+    void printBoardFromWhitePerspective(PrintStream out, ChessBoard board, ChessGame chessGame, ChessPosition chessPosition) {
         printTopSideAlsoBottomSide(out, true);
-        printMiddlePartOfBoard(out, board, true);
+        printMiddlePartOfBoard(out, board, true, chessGame, chessPosition);
         printTopSideAlsoBottomSide(out, true);
     }
-    void printBoardFromBlackPerspective(PrintStream out, ChessBoard board) {
+    void printBoardFromBlackPerspective(PrintStream out, ChessBoard board, ChessGame chessGame, ChessPosition chessPosition) {
         printTopSideAlsoBottomSide(out, false);
-        printMiddlePartOfBoard(out, board, false);
+        printMiddlePartOfBoard(out, board, false, chessGame, chessPosition);
         printTopSideAlsoBottomSide(out, false);
     }
 
@@ -73,7 +78,7 @@ public class ChessBoardPrinter {
         out.println();
     }
 
-    void printMiddlePartOfBoard(PrintStream out, ChessBoard board, Boolean whitePerspective) {
+    void printMiddlePartOfBoard(PrintStream out, ChessBoard board, Boolean whitePerspective, ChessGame chessGame, ChessPosition chessPosition) {
         ChessPiece[][] chessPieceMatrix = getPiecesAsMatrix(board, whitePerspective);
         String[] numberCoordinates;
         if (whitePerspective) {
@@ -86,10 +91,40 @@ public class ChessBoardPrinter {
             out.print(EscapeSequences.SET_TEXT_COLOR_WHITE);
             out.print(numberCoordinates[i-1]);
             for (int j = 1; j < 9; j++) {
+                boolean isPiecePosition = false;
+                ChessPosition piecePosition = new ChessPosition(i, j);
+                if (piecePosition.equals(chessPosition)) {
+                    isPiecePosition = true;
+                }
+                boolean validSpot = false;
+                if (chessGame != null) {
+                    HashSet<ChessMove> possibleMoves = (HashSet<ChessMove>) chessGame.validMoves(chessPosition);
+                    ChessPosition currentPosition = new ChessPosition(i,j);
+                    for (ChessMove move : possibleMoves) {
+                        if (move.getEndPosition().equals(currentPosition)) {
+                            validSpot = true;
+                            break;
+                        }
+                    }
+                }
                 if (!isSumEven(i,j)) {
-                    out.print(EscapeSequences.SET_BG_COLOR_BLACK);
+                    if (validSpot) {
+                        out.print(EscapeSequences.SET_BG_COLOR_DARK_GREEN);
+                    } else {
+                        out.print(EscapeSequences.SET_BG_COLOR_BLACK);
+                    }
+                    if (isPiecePosition) {
+                        out.print(EscapeSequences.SET_BG_COLOR_YELLOW);
+                    }
                 } else {
-                    out.print(EscapeSequences.SET_BG_COLOR_WHITE);
+                    if (validSpot) {
+                        out.print(EscapeSequences.SET_BG_COLOR_GREEN);
+                    } else {
+                        out.print(EscapeSequences.SET_BG_COLOR_WHITE);
+                    }
+                    if (isPiecePosition) {
+                        out.print(EscapeSequences.SET_BG_COLOR_YELLOW);
+                    }
                 }
                 if (chessPieceMatrix[i][j] != null) {
                     if (chessPieceMatrix[i][j].getTeamColor() == ChessGame.TeamColor.WHITE) {

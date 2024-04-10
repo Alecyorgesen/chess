@@ -300,7 +300,7 @@ public class Client {
                     break;
                 case "6":
                 case "legal moves":
-                    highlightLegalMoves(wsClient, authData);
+                    highlightLegalMoves(wsClient, authData, gameData, teamColor);
                     break;
                 default:
                     System.out.println("Please enter the number of the option you would like to select.");
@@ -316,18 +316,7 @@ public class Client {
         System.out.println("Highlight Legal Moves: This lets you see the moves that you are allowed to make. Type 'legal moves' or 6 to select.");
     }
     private void makeMove(WSClient wsClient, AuthData authData, GameData gameData) {
-        GameData updatedGameData = null;
-        try {
-            ListGamesResponse listGamesResponse = serverFacade.listGames(authData);
-            List<GameData> listOfGameData = listGamesResponse.games();
-            for (GameData gameDataFromLoop : listOfGameData) {
-                if (gameDataFromLoop.gameID() == gameData.gameID()) {
-                    updatedGameData = gameDataFromLoop;
-                }
-            }
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
+        GameData updatedGameData = getGameData(gameData);
         if (updatedGameData == null) {
             System.out.println("Game not found. Try leaving and reconnecting.");
             return;
@@ -348,6 +337,10 @@ public class Client {
             case "H", "h" -> 8;
             default -> 0;
         };
+        if (column1 == 0 || row1 < 1 || row1 > 8) {
+            System.out.println("Invalid Position");
+            return;
+        }
         int row2 = Integer.parseInt(String.valueOf(position2.charAt(1)));
         int column2 = switch (String.valueOf(position2.charAt(0))) {
             case "A", "a" -> 1;
@@ -360,6 +353,10 @@ public class Client {
             case "H", "h" -> 8;
             default -> 0;
         };
+        if (column2 == 0 || row2 < 1 || row2 > 8) {
+            System.out.println("Invalid Position");
+            return;
+        }
         ChessPiece.PieceType promotionPiece = null;
         ChessPosition startPosition = new ChessPosition(row1, column1);
         ChessPosition endPosition = new ChessPosition(row2, column2);
@@ -378,6 +375,21 @@ public class Client {
         ChessMove chessMove = new ChessMove(startPosition, endPosition, promotionPiece);
         serverFacade.makeMove(wsClient, authData, updatedGameData.gameID(), chessMove);
     }
+    private GameData getGameData(GameData gameData) {
+        GameData updatedGameData = null;
+        try {
+            ListGamesResponse listGamesResponse = serverFacade.listGames(authData);
+            List<GameData> listOfGameData = listGamesResponse.games();
+            for (GameData gameDataFromLoop : listOfGameData) {
+                if (gameDataFromLoop.gameID() == gameData.gameID()) {
+                    updatedGameData = gameDataFromLoop;
+                }
+            }
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+        return updatedGameData;
+    }
     private ChessPiece.PieceType selectPromotionPiece() {
         System.out.println("Please select which piece you would like to promote to:");
         System.out.println("1. Queen");
@@ -394,7 +406,36 @@ public class Client {
         };
     }
 
-    public void highlightLegalMoves(WSClient wsClient, AuthData authData) {
-
+    public void highlightLegalMoves(WSClient wsClient, AuthData authData, GameData gameData, ChessGame.TeamColor teamColor) {
+        GameData updatedGameData = getGameData(gameData);
+        if (updatedGameData == null) {
+            System.out.println("Game not found. Try leaving and reconnecting.");
+            return;
+        }
+        System.out.println("Which piece would you like see the moves for?");
+        String position1 = scanner.nextLine();
+        int row = Integer.parseInt(String.valueOf(position1.charAt(1)));
+        int column = switch (String.valueOf(position1.charAt(0))) {
+            case "A", "a" -> 1;
+            case "B", "b" -> 2;
+            case "C", "c" -> 3;
+            case "D", "d" -> 4;
+            case "E", "e" -> 5;
+            case "F", "f" -> 6;
+            case "G", "g" -> 7;
+            case "H", "h" -> 8;
+            default -> 0;
+        };
+        if (column == 0 || row < 1 || row > 8) {
+            System.out.println("Invalid Position");
+            return;
+        }
+        ChessPosition chessPosition = new ChessPosition(row, column);
+        ChessGame chessGame = updatedGameData.game();
+        if (teamColor == ChessGame.TeamColor.WHITE) {
+            chessBoardPrinter.printBoardFromWhiteSideWithHighlight(updatedGameData.game().getBoard(), chessGame, chessPosition);
+        } else {
+            chessBoardPrinter.printBoardFromBlackSideWithHighlight(updatedGameData.game().getBoard(), chessGame, chessPosition);
+        }
     }
 }
