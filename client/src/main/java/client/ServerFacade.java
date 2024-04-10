@@ -109,6 +109,10 @@ public class ServerFacade {
         }
     }
     public void resign(WSClient wsClient, AuthData authData, int gameID) {
-
+        try {
+            wsClient.resign(wsClient, authData, gameID);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
     }
 }

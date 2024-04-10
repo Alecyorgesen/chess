@@ -11,10 +11,7 @@ import webSocketMessages.serverMessages.Error;
 import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
 import webSocketMessages.serverMessages.ServerMessage;
-import webSocketMessages.userCommands.DrawBoard;
-import webSocketMessages.userCommands.Leave;
-import webSocketMessages.userCommands.MakeMove;
-import webSocketMessages.userCommands.UserGameCommand;
+import webSocketMessages.userCommands.*;
 
 import javax.websocket.*;
 import java.net.URI;
@@ -96,5 +93,10 @@ public class WSClient extends Endpoint {
     }
     public void notifyClient(String message) {
         System.out.println(message);
+    }
+    public void resign(WSClient wsClient, AuthData authData, int gameID) throws Exception {
+        Resign resign = new Resign(authData.authToken(),gameID);
+        String json = new Gson().toJson(resign);
+        wsClient.send(json);
     }
 }
