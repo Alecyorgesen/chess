@@ -82,7 +82,8 @@ public class WSServer {
             }
             String username = authDAO.getAuthUsingAuth(connection.getAuthToken()).username();
             GameData gameData = gameDAO.getGame(gameID);
-            if (gameData.whiteUsername().equals(username)) {
+
+            if (gameData.whiteUsername() != null && gameData.whiteUsername().equals(username)) {
                 activeGame.setWhitePlayer(connection);
             } else if (gameData.blackUsername().equals(username)) {
                 activeGame.setBlackPlayer(connection);
@@ -109,12 +110,16 @@ public class WSServer {
             GameData gameData = gameDAO.getGame(gameID);
             String username = authDAO.getAuthUsingAuth(authToken).username();
             ChessGame.TeamColor playerColor = null;
-            if (gameData.whiteUsername().equals(username)) {
-                gameData.setWhiteUsername(null);
-                playerColor = ChessGame.TeamColor.WHITE;
-            } else if (gameData.blackUsername().equals(username)) {
-                gameData.setBlackUsername(null);
-                playerColor = ChessGame.TeamColor.BLACK;
+            if (gameData.whiteUsername() != null){
+                if (gameData.whiteUsername().equals(username)) {
+                    gameData = gameData.setWhiteUsername(null); //You must assign it like this because gameData is a record.
+                    playerColor = ChessGame.TeamColor.WHITE;
+                }
+            } else if (gameData.blackUsername() != null) {
+                if (gameData.blackUsername().equals(username)) {
+                    gameData = gameData.setBlackUsername(null);
+                    playerColor = ChessGame.TeamColor.BLACK;
+                }
             }
             gameDAO.updateGame(gameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gameData.game());
 

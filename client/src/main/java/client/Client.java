@@ -400,35 +400,67 @@ public class Client {
     }
 
     synchronized public void highlightLegalMoves(WSClient wsClient, AuthData authData, GameData gameData, ChessGame.TeamColor teamColor) {
-        GameData updatedGameData = getGameData(gameData);
-        if (updatedGameData == null) {
-            System.out.println("Game not found. Try leaving and reconnecting.");
-            return;
-        }
+//        GameData updatedGameData = getGameData(gameData);
+//        if (updatedGameData == null) {
+//            System.out.println("Game not found. Try leaving and reconnecting.");
+//            return;
+//        }
         System.out.println("Which piece would you like see the moves for?");
         String position1 = scanner.nextLine();
-        int row = Integer.parseInt(String.valueOf(position1.charAt(1)));
-        int column = switch (String.valueOf(position1.charAt(0))) {
-            case "A", "a" -> 1;
-            case "B", "b" -> 2;
-            case "C", "c" -> 3;
-            case "D", "d" -> 4;
-            case "E", "e" -> 5;
-            case "F", "f" -> 6;
-            case "G", "g" -> 7;
-            case "H", "h" -> 8;
-            default -> 0;
-        };
+        int row;
+        int column;
+        try {
+            row = Integer.parseInt(String.valueOf(position1.charAt(1)));
+            column = switch (String.valueOf(position1.charAt(0))) {
+                case "A", "a" -> 1;
+                case "B", "b" -> 2;
+                case "C", "c" -> 3;
+                case "D", "d" -> 4;
+                case "E", "e" -> 5;
+                case "F", "f" -> 6;
+                case "G", "g" -> 7;
+                case "H", "h" -> 8;
+                default -> 0;
+            };
+        } catch (Exception ex) {
+            System.out.println("Invalid input.");
+            return;
+        }
         if (column == 0 || row < 1 || row > 8) {
             System.out.println("Invalid Position");
             return;
         }
-        ChessPosition chessPosition = new ChessPosition(row, column);
-        ChessGame chessGame = updatedGameData.game();
-        if (teamColor == ChessGame.TeamColor.WHITE) {
-            chessBoardPrinter.printBoardFromWhiteSideWithHighlight(updatedGameData.game().getBoard(), chessGame, chessPosition);
+        if (teamColor != ChessGame.TeamColor.BLACK) {
+            row = switch (row) {
+                case 1 -> 8;
+                case 2 -> 7;
+                case 3 -> 6;
+                case 4 -> 5;
+                case 5 -> 4;
+                case 6 -> 3;
+                case 7 -> 2;
+                case 8 -> 1;
+                default -> 0;
+            };
         } else {
-            chessBoardPrinter.printBoardFromBlackSideWithHighlight(updatedGameData.game().getBoard(), chessGame, chessPosition);
+            column = switch (column) {
+                case 1 -> 8;
+                case 2 -> 7;
+                case 3 -> 6;
+                case 4 -> 5;
+                case 5 -> 4;
+                case 6 -> 3;
+                case 7 -> 2;
+                case 8 -> 1;
+                default -> 0;
+            };
+        }
+        ChessPosition chessPosition = new ChessPosition(row, column);
+        ChessGame chessGame = currentGameData.game();
+        if (teamColor == ChessGame.TeamColor.WHITE) {
+            chessBoardPrinter.printBoardFromWhiteSideWithHighlight(currentGameData.game().getBoard(), chessGame, chessPosition);
+        } else {
+            chessBoardPrinter.printBoardFromBlackSideWithHighlight(currentGameData.game().getBoard(), chessGame, chessPosition);
         }
     }
     private GameData getGameData(GameData gameData) {
