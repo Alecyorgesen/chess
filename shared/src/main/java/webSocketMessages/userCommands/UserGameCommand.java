@@ -20,7 +20,7 @@ public class UserGameCommand {
         DRAW_BOARD,
         MAKE_MOVE,
         LEAVE,
-        RESIGN
+        RESIGN,
     }
 
     protected CommandType commandType;

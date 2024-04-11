@@ -15,6 +15,15 @@ public class Connection {
         this.authToken = authToken;
         this.session = session;
     }
+
+    public Session getSession() {
+        return session;
+    }
+
+    public String getAuthToken() {
+        return authToken;
+    }
+
     public Connection getConnection(String authToken, Session session) {
         try {
             AuthData authData = authDAO.getAuthUsingAuth(authToken);
@@ -37,5 +46,11 @@ public class Connection {
             System.out.println("Something really isn't right: " + ex.getMessage());
         }
     }
-
+    public void send(String message) {
+        try {
+            this.session.getRemote().sendString(message);
+        } catch (Exception ex) {
+            sendError(session,ex.getMessage());
+        }
+    }
 }

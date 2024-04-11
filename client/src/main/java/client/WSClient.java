@@ -1,8 +1,11 @@
 package client;
 
+import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
 import model.AuthData;
 import model.GameData;
 import ui.ChessBoardPrinter;
@@ -14,6 +17,7 @@ import webSocketMessages.userCommands.*;
 
 import javax.websocket.*;
 import java.net.URI;
+import java.util.Objects;
 
 public class WSClient extends Endpoint {
 
@@ -36,31 +40,28 @@ public class WSClient extends Endpoint {
 
         this.session.addMessageHandler(new MessageHandler.Whole<String>() {
             public void onMessage(String message) {
-                System.out.println(message);
+//                System.out.println(message + "hey now");
+                ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+                LoadGame loadGame = new Gson().fromJson(message, LoadGame.class);
+                Notification notification = new Gson().fromJson(message, Notification.class);
+                ErrorMessage errorMessage = new Gson().fromJson(message, ErrorMessage.class);
+                switch (serverMessage.getServerMessageType()) {
+                    case LOAD_GAME:
+                        loadGame(loadGame);
+                        break;
+                    case ERROR:
+                        serverError(errorMessage.getErrorMessage());
+                        break;
+                    case NOTIFICATION:
+                        notifyClient(notification.getMessage());
+                }
             }
         });
-    }
-    @OnMessage
-    public void onMessage(String message) {
-        ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-        switch (serverMessage.getServerMessageType()) {
-            case LOAD_GAME:
-                LoadGame loadGame = (LoadGame) serverMessage;
-                this.loadGame(loadGame.getGame(), loadGame.getPlayerColor());
-                break;
-            case ERROR:
-                ErrorMessage errorMessage = (ErrorMessage) serverMessage;
-                serverError(errorMessage.getErrorMessage());
-                break;
-            case NOTIFICATION:
-                Notification notification = (Notification) serverMessage;
-                notifyClient(notification.getMessage());
-        }
     }
     public void send(String msg) throws Exception {
         this.session.getBasicRemote().sendText(msg);
     }
-    public void redrawChessBoard(WSClient wsClient, AuthData authData, int gameID, ChessGame.TeamColor teamColor) throws Exception {
+    public void redrawChessBoard(AuthData authData, int gameID, ChessGame.TeamColor teamColor) throws Exception {
         DrawBoard drawBoard = new DrawBoard(authData.authToken(), gameID);
         String json = new Gson().toJson(drawBoard);
         this.send(json);
@@ -79,11 +80,15 @@ public class WSClient extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void loadGame(GameData gameData, ChessGame.TeamColor playerColor) {
-        if (playerColor == ChessGame.TeamColor.WHITE) {
-            chessBoardPrinter.printBoardFromWhiteSide(gameData.game().getBoard());
+    public void loadGame(LoadGame loadGame) {
+        GameData gameData = loadGame.getGame();
+        Client.currentGameData = gameData;
+        ChessBoard chessBoard = gameData.game().getBoard();
+        String currentUser = Client.getCurrentUser();
+        if (Objects.equals(gameData.blackUsername(), currentUser)) {
+            chessBoardPrinter.printBoardFromBlackSide(chessBoard);
         } else {
-            chessBoardPrinter.printBoardFromBlackSide(gameData.game().getBoard());
+            chessBoardPrinter.printBoardFromWhiteSide(chessBoard);
         }
     }
     public void serverError(String errorMessage) {
@@ -102,4 +107,9 @@ public class WSClient extends Endpoint {
         String json = new Gson().toJson(joinPlayer);
         this.send(json);
     }
+//    public void loadGameRequest(AuthData authData, int gameID) throws Exception {
+//        LoadGameRequest loadGameRequest = new LoadGameRequest(authData.authToken(),gameID);
+//        String json = new Gson().toJson(loadGameRequest);
+//        this.send(json);
+//    }
 }

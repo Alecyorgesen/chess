@@ -1,13 +1,10 @@
 package client;
 
 import chess.*;
-import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
 import response.ListGamesResponse;
 import ui.ChessBoardPrinter;
-import webSocketMessages.userCommands.DrawBoard;
-import webSocketMessages.userCommands.UserGameCommand;
 
 import java.util.*;
 
@@ -19,6 +16,9 @@ public class Client {
     int gameNumber = 1;
     ChessBoardPrinter chessBoardPrinter = new ChessBoardPrinter();
     ChessBoard chessBoard = new ChessBoard();
+    public static ChessBoard updatedChessBoard = null;
+    public static GameData currentGameData = null;
+    public static String currentUser = "";
     public void run() {
         beforeLoginLoop();
     }
@@ -116,6 +116,7 @@ public class Client {
         String password = scanner.nextLine();
         authData = serverFacade.login(username, password);
         if (authData != null) {
+            setCurrentUser(username);
             menuScreenLoop();
             return;
         }
@@ -141,6 +142,7 @@ public class Client {
             return;
         }
         authData = serverFacade.register(username,password,email);
+        setCurrentUser(username);
         menuScreenLoop();
     }
     private void helpMenu() {
@@ -236,7 +238,7 @@ public class Client {
     private void joinObserver() {
         listGames();
         System.out.println("Please select the number of the game you would like to observe.");
-        int number = 0;
+        int number;
         try {
             number = Integer.parseInt(scanner.nextLine());
         } catch (Exception ex) {
@@ -314,7 +316,7 @@ public class Client {
         System.out.println("Resign: This ends the game. Your opponent automatically wins if you do this option");
         System.out.println("Highlight Legal Moves: This lets you see the moves that you are allowed to make. Type 'legal moves' or 6 to select.");
     }
-    private void makeMove(WSClient wsClient, AuthData authData, GameData gameData) {
+    synchronized private void makeMove(WSClient wsClient, AuthData authData, GameData gameData) {
         GameData updatedGameData = getGameData(gameData);
         if (updatedGameData == null) {
             System.out.println("Game not found. Try leaving and reconnecting.");
@@ -374,21 +376,13 @@ public class Client {
         ChessMove chessMove = new ChessMove(startPosition, endPosition, promotionPiece);
         serverFacade.makeMove(wsClient, authData, updatedGameData.gameID(), chessMove);
     }
-    private GameData getGameData(GameData gameData) {
-        GameData updatedGameData = null;
-        try {
-            ListGamesResponse listGamesResponse = serverFacade.listGames(authData);
-            List<GameData> listOfGameData = listGamesResponse.games();
-            for (GameData gameDataFromLoop : listOfGameData) {
-                if (gameDataFromLoop.gameID() == gameData.gameID()) {
-                    updatedGameData = gameDataFromLoop;
-                }
-            }
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-        return updatedGameData;
-    }
+//    private void updateChessBoard(WSClient wsClient, GameData gameData) {
+//        try {
+//            serverFacade.loadGame(wsClient, authData, gameData.gameID());
+//        } catch (Exception ex) {
+//            throw new RuntimeException(ex);
+//        }
+//    }
     private ChessPiece.PieceType selectPromotionPiece() {
         System.out.println("Please select which piece you would like to promote to:");
         System.out.println("1. Queen");
@@ -405,7 +399,7 @@ public class Client {
         };
     }
 
-    public void highlightLegalMoves(WSClient wsClient, AuthData authData, GameData gameData, ChessGame.TeamColor teamColor) {
+    synchronized public void highlightLegalMoves(WSClient wsClient, AuthData authData, GameData gameData, ChessGame.TeamColor teamColor) {
         GameData updatedGameData = getGameData(gameData);
         if (updatedGameData == null) {
             System.out.println("Game not found. Try leaving and reconnecting.");
@@ -436,5 +430,26 @@ public class Client {
         } else {
             chessBoardPrinter.printBoardFromBlackSideWithHighlight(updatedGameData.game().getBoard(), chessGame, chessPosition);
         }
+    }
+    private GameData getGameData(GameData gameData) {
+        GameData updatedGameData = null;
+        try {
+            ListGamesResponse listGamesResponse = serverFacade.listGames(authData);
+            List<GameData> listOfGameData = listGamesResponse.games();
+            for (GameData gameDataFromLoop : listOfGameData) {
+                if (gameDataFromLoop.gameID() == gameData.gameID()) {
+                    updatedGameData = gameDataFromLoop;
+                }
+            }
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+        return updatedGameData;
+    }
+    public static String getCurrentUser() {
+        return currentUser;
+    }
+    public static void setCurrentUser(String user) {
+        currentUser = user;
     }
 }

@@ -89,7 +89,7 @@ public class ServerFacade {
     }
     public void redrawChessBoard(WSClient wsClient, AuthData authData, int gameID, ChessGame.TeamColor teamColor) {
         try {
-            wsClient.redrawChessBoard(wsClient, authData, gameID, teamColor);
+            wsClient.redrawChessBoard(authData, gameID, teamColor);
         } catch (Exception ex) {
             throw new RuntimeException(ex.getMessage());
         }
@@ -122,4 +122,11 @@ public class ServerFacade {
             throw new RuntimeException(ex.getMessage());
         }
     }
+//    public void loadGame(WSClient wsClient, AuthData authData, int gameID) {
+//        try {
+//            wsClient.loadGameRequest(authData, gameID);
+//        } catch (Exception ex) {
+//            throw new RuntimeException(ex.getMessage());
+//        }
+//    }
 }
