@@ -31,19 +31,26 @@ public class ActiveGame {
     }
     public void notifyAllInGameExceptForConnection(Connection connection, String message) {
         if (getWhitePlayer()!=null) {
-            if (!getWhitePlayer().getAuthToken().equals(connection.getAuthToken())) {
+            if (getWhitePlayer().getAuthToken().equals(connection.getAuthToken())) {
                 WSServer.notify(connection, message);
             }
         }
         if (getBlackPlayer()!=null) {
-            if (!getBlackPlayer().getAuthToken().equals(connection.getAuthToken())) {
+            if (getBlackPlayer().getAuthToken().equals(connection.getAuthToken())) {
                 WSServer.notify(connection, message);
             }
         }
         for (Connection connection_ : observers) {
-            if (!connection_.getAuthToken().equals(connection.getAuthToken())) {
+            if (connection_.getAuthToken().equals(connection.getAuthToken())) {
                 WSServer.notify(connection, message);
             }
         }
+    }
+
+    public HashSet<Connection> getObservers() {
+        return observers;
+    }
+    public void addObserver(Connection connection) {
+        observers.add(connection);
     }
 }

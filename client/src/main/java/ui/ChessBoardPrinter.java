@@ -100,10 +100,12 @@ public class ChessBoardPrinter {
                 if (chessGame != null) {
                     HashSet<ChessMove> possibleMoves = (HashSet<ChessMove>) chessGame.validMoves(chessPosition);
                     ChessPosition currentPosition = new ChessPosition(i,j);
-                    for (ChessMove move : possibleMoves) {
-                        if (move.getEndPosition().equals(currentPosition)) {
-                            validSpot = true;
-                            break;
+                    if (possibleMoves != null) {
+                        for (ChessMove move : possibleMoves) {
+                            if (move.getEndPosition().equals(currentPosition)) {
+                                validSpot = true;
+                                break;
+                            }
                         }
                     }
                 }

@@ -2,8 +2,10 @@ package server;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessMove;
 import com.google.gson.Gson;
 import dataAccess.*;
+import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.server.Authentication;
 import org.eclipse.jetty.websocket.api.annotations.*;
@@ -19,6 +21,7 @@ import static webSocketMessages.userCommands.UserGameCommand.CommandType.*;
 
 @WebSocket
 public class WSServer {
+    public static final Object syncronizedObject = new Object();
     static AuthDAO authDAO = new AuthSQLDAO();
     static GameDAO gameDAO = new GameSQLDAO();
     static HashSet<Connection> connections = new HashSet<>();
@@ -46,9 +49,17 @@ public class WSServer {
                     JoinPlayer joinPlayer = new Gson().fromJson(msg, JoinPlayer.class);
                     join(conn, joinPlayer);
                     break;
-//                case JOIN_OBSERVER -> observe(conn, command);
-//                case DRAW_BOARD -> drawBoard(conn, command);
-//                case MAKE_MOVE -> move(conn, command);
+                case JOIN_OBSERVER:
+                    JoinObserver joinObserver = new Gson().fromJson(msg, JoinObserver.class);
+                    observe(conn, joinObserver);
+                    break;
+                case DRAW_BOARD:
+                    DrawBoard drawBoard = new Gson().fromJson(msg, DrawBoard.class);
+                    drawBoard(conn, drawBoard);
+                case MAKE_MOVE:
+                    MakeMove makeMove = new Gson().fromJson(msg, MakeMove.class);
+                    makeMove(conn, makeMove);
+                    break;
                 case LEAVE:
                     Leave leave = new Gson().fromJson(msg, Leave.class);
                     leave(conn, leave);
@@ -82,13 +93,19 @@ public class WSServer {
             }
             String username = authDAO.getAuthUsingAuth(connection.getAuthToken()).username();
             GameData gameData = gameDAO.getGame(gameID);
-
             if (gameData.whiteUsername() != null && gameData.whiteUsername().equals(username)) {
                 activeGame.setWhitePlayer(connection);
             } else if (gameData.blackUsername().equals(username)) {
                 activeGame.setBlackPlayer(connection);
             }
             loadGame(connection, gameID);
+            String playerColorAsString;
+            if (playerColor.equals(ChessGame.TeamColor.WHITE)) {
+                playerColorAsString = "white";
+            } else {
+                playerColorAsString = "black";
+            }
+            activeGame.notifyAllInGameExceptForConnection(connection, username + " joined the game as " + playerColorAsString);
         } catch (Exception ex) {
             sendError(connection,ex.getMessage());
         }
@@ -165,6 +182,102 @@ public class WSServer {
             connection.getSession().getRemote().sendString(json);
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
+        }
+    }
+    public void makeMove(Connection connection, MakeMove makeMove) {
+        try {
+        int gameID = makeMove.getGameID();
+        ChessMove chessMove = makeMove.getChessMove();
+        ActiveGame activeGame = activeGameMap.get(gameID);
+        GameData gameData = gameDAO.getGame(gameID);
+        ChessGame chessGame = gameData.game();
+        ChessGame.TeamColor teamColor = null;
+        if (activeGame.getWhitePlayer() != null && activeGame.getWhitePlayer().getAuthToken().equals(connection.getAuthToken())) {
+            if (chessGame.getTeamTurn() == ChessGame.TeamColor.WHITE) {
+                chessGame.makeMove(chessMove);
+                teamColor = ChessGame.TeamColor.WHITE;
+            } else {
+                sendError(connection,"It's not your turn!");
+            }
+        } else if (activeGame.getBlackPlayer() != null && activeGame.getBlackPlayer().getAuthToken().equals((connection.getAuthToken()))) {
+            if (chessGame.getTeamTurn() == ChessGame.TeamColor.BLACK) {
+                chessGame.makeMove(chessMove);
+                teamColor = ChessGame.TeamColor.BLACK;
+            } else {
+                sendError(connection,"It's not your turn!");
+            }
+        } else {
+            sendError(connection, "You can't make a move if you are observing.");
+            return;
+        }
+        synchronized (syncronizedObject) {
+            gameDAO.updateGame(gameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), chessGame);
+        }
+        loadGame(activeGame.getWhitePlayer(), gameID);
+        loadGame(activeGame.getBlackPlayer(), gameID);
+        for (Connection connection_ : activeGame.getObservers()) {
+            loadGame(connection_, gameID);
+        }
+        int row1 = chessMove.getStartPosition().getRow();
+        int col1 = chessMove.getStartPosition().getColumn();
+        int row2 = chessMove.getEndPosition().getRow();
+        int col2 = chessMove.getEndPosition().getColumn();
+        String col1AsString = switch (col1) {
+            case 1 -> "a";
+            case 2 -> "b";
+            case 3 -> "c";
+            case 4 -> "d";
+            case 5 -> "e";
+            case 6 -> "f";
+            case 7 -> "g";
+            case 8 -> "h";
+            default -> "";
+        };
+        String col2AsString = switch (col2) {
+            case 1 -> "a";
+            case 2 -> "b";
+            case 3 -> "c";
+            case 4 -> "d";
+            case 5 -> "e";
+            case 6 -> "f";
+            case 7 -> "g";
+            case 8 -> "h";
+            default -> "";
+        };
+        String coordinate1 = row1 + col1AsString;
+        String coordinate2 = row2 + col2AsString;
+        String playerColor = null;
+        if (teamColor == ChessGame.TeamColor.WHITE) {
+            playerColor = "White";
+        } else {
+            playerColor = "Black";
+        }
+        activeGame.notifyAllInGameExceptForConnection(connection, playerColor + " moved " + coordinate2 + " to " + coordinate1 + ".");
+        } catch (Exception ex) {
+            sendError(connection, ex.getMessage());
+        }
+    }
+    public void observe(Connection connection, JoinObserver joinObserver) {
+        try {
+            int gameID = joinObserver.getGameID();
+            ActiveGame activeGame = activeGameMap.get(gameID);
+            if (activeGame == null) {
+                activeGame = new ActiveGame(gameID);
+            }
+            AuthData authData = authDAO.getAuthUsingAuth(joinObserver.getAuthString());
+            String username = authData.username();
+            activeGame.addObserver(connection);
+            loadGame(connection, gameID);
+            activeGame.notifyAllInGameExceptForConnection(connection, username + " is now observing");
+        } catch (Exception ex) {
+            sendError(connection, ex.getMessage());
+        }
+    }
+    public void drawBoard(Connection connection, DrawBoard drawBoard) {
+        try {
+            loadGame(connection, drawBoard.getGameID());
+        } catch (Exception ex) {
+            sendError(connection, ex.getMessage());
         }
     }
 }

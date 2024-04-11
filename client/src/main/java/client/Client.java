@@ -15,10 +15,10 @@ public class Client {
     Map<Integer,GameData> mapOfGames = new HashMap<>();
     int gameNumber = 1;
     ChessBoardPrinter chessBoardPrinter = new ChessBoardPrinter();
-    ChessBoard chessBoard = new ChessBoard();
-    public static ChessBoard updatedChessBoard = null;
     public static GameData currentGameData = null;
     public static String currentUser = "";
+    public static boolean isObserving = false;
+
     public void run() {
         beforeLoginLoop();
     }
@@ -227,9 +227,9 @@ public class Client {
             }
             serverFacade.joinGame(authData, gameID, teamColor);
             if (teamColor.equals("WHITE")) {
-                insideGameLoop(gameID, ChessGame.TeamColor.WHITE, gameData);
+                insideGameLoop(gameID, ChessGame.TeamColor.WHITE);
             } else {
-                insideGameLoop(gameID, ChessGame.TeamColor.BLACK, gameData);
+                insideGameLoop(gameID, ChessGame.TeamColor.BLACK);
             }
             return;
         }
@@ -252,13 +252,49 @@ public class Client {
         }
         int gameID = gameData.gameID();
 
-//        serverFacade.observeGame(authData, gameID);
-        System.out.println("Observing Game!");
-//        chessBoardPrinter.printChessBoard(chessBoard);
+        observeGameLoop(gameID, ChessGame.TeamColor.WHITE);
     }
 // You'll need to add functionality for what you can do if you are observing.
+    public void observeGameLoop(int gameID, ChessGame.TeamColor teamColor) {
+        WSClient wsClient;
+        try {
+            wsClient = new WSClient();
+        } catch (Exception ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
+        serverFacade.observeGame(wsClient, authData, gameID);
+        System.out.println("1. Help");
+        System.out.println("2. Redraw Chess Board");
+        System.out.println("3. Leave");
+        System.out.println("4. Highlight Legal Moves");
+        boolean shouldLoop = true;
+        while (shouldLoop) {
+            String input = scanner.nextLine();
+            switch (input) {
+                case "1":
+                case "help":
+                    helpDuringGame();
+                    break;
+                case "2":
+                case "redraw":
+                    serverFacade.redrawChessBoard(wsClient, authData, gameID, teamColor);
+                    break;
+                case "3":
+                case "leave":
+                    serverFacade.leave(wsClient, authData, gameID);
+                    shouldLoop = false;
+                    break;
+                case "4":
+                case "legal moves":
+                    highlightLegalMoves(teamColor);
+                    break;
+                default:
+                    System.out.println("Please enter the number of the option you would like to select.");
+            }
+        }
 
-    public void insideGameLoop(int gameID, ChessGame.TeamColor teamColor, GameData gameData) {
+    }
+    public void insideGameLoop(int gameID, ChessGame.TeamColor teamColor) {
         WSClient wsClient;
         try {
             wsClient = new WSClient();
@@ -292,7 +328,7 @@ public class Client {
                     break;
                 case "4":
                 case "move":
-                    makeMove(wsClient, authData, gameData);
+                    makeMove(wsClient, authData);
                     break;
                 case "5":
                 case "resign":
@@ -301,7 +337,7 @@ public class Client {
                     break;
                 case "6":
                 case "legal moves":
-                    highlightLegalMoves(wsClient, authData, gameData, teamColor);
+                    highlightLegalMoves(teamColor);
                     break;
                 default:
                     System.out.println("Please enter the number of the option you would like to select.");
@@ -316,44 +352,53 @@ public class Client {
         System.out.println("Resign: This ends the game. Your opponent automatically wins if you do this option");
         System.out.println("Highlight Legal Moves: This lets you see the moves that you are allowed to make. Type 'legal moves' or 6 to select.");
     }
-    synchronized private void makeMove(WSClient wsClient, AuthData authData, GameData gameData) {
-        GameData updatedGameData = getGameData(gameData);
-        if (updatedGameData == null) {
-            System.out.println("Game not found. Try leaving and reconnecting.");
-            return;
-        }
+    synchronized private void makeMove(WSClient wsClient, AuthData authData) {
         System.out.println("Please select the coordinates of the piece you would like to move:");
         String position1 = scanner.nextLine();
         System.out.println("Now enter the location you want to move the piece to:");
         String position2 = scanner.nextLine();
-        int row1 = Integer.parseInt(String.valueOf(position1.charAt(1)));
-        int column1 = switch (String.valueOf(position1.charAt(0))) {
-            case "A", "a" -> 1;
-            case "B", "b" -> 2;
-            case "C", "c" -> 3;
-            case "D", "d" -> 4;
-            case "E", "e" -> 5;
-            case "F", "f" -> 6;
-            case "G", "g" -> 7;
-            case "H", "h" -> 8;
-            default -> 0;
-        };
+        int row1;
+        int column1;
+        try {
+            row1 = Integer.parseInt(String.valueOf(position1.charAt(1)));
+            column1 = switch (String.valueOf(position1.charAt(0))) {
+                case "A", "a" -> 1;
+                case "B", "b" -> 2;
+                case "C", "c" -> 3;
+                case "D", "d" -> 4;
+                case "E", "e" -> 5;
+                case "F", "f" -> 6;
+                case "G", "g" -> 7;
+                case "H", "h" -> 8;
+                default -> 0;
+            };
+        } catch (Exception exception) {
+            System.out.println("Invalid input.");
+            return;
+        }
         if (column1 == 0 || row1 < 1 || row1 > 8) {
             System.out.println("Invalid Position");
             return;
         }
-        int row2 = Integer.parseInt(String.valueOf(position2.charAt(1)));
-        int column2 = switch (String.valueOf(position2.charAt(0))) {
-            case "A", "a" -> 1;
-            case "B", "b" -> 2;
-            case "C", "c" -> 3;
-            case "D", "d" -> 4;
-            case "E", "e" -> 5;
-            case "F", "f" -> 6;
-            case "G", "g" -> 7;
-            case "H", "h" -> 8;
-            default -> 0;
-        };
+        int row2;
+        int column2;
+        try {
+            row2 = Integer.parseInt(String.valueOf(position2.charAt(1)));
+            column2 = switch (String.valueOf(position2.charAt(0))) {
+                case "A", "a" -> 1;
+                case "B", "b" -> 2;
+                case "C", "c" -> 3;
+                case "D", "d" -> 4;
+                case "E", "e" -> 5;
+                case "F", "f" -> 6;
+                case "G", "g" -> 7;
+                case "H", "h" -> 8;
+                default -> 0;
+            };
+        } catch (Exception exception) {
+            System.out.println("Invalid input.");
+            return;
+        }
         if (column2 == 0 || row2 < 1 || row2 > 8) {
             System.out.println("Invalid Position");
             return;
@@ -361,7 +406,7 @@ public class Client {
         ChessPiece.PieceType promotionPiece = null;
         ChessPosition startPosition = new ChessPosition(row1, column1);
         ChessPosition endPosition = new ChessPosition(row2, column2);
-        ChessPiece chessPiece = updatedGameData.game().getBoard().getPiece(startPosition);
+        ChessPiece chessPiece = currentGameData.game().getBoard().getPiece(startPosition);
         if (chessPiece.getPieceType() == ChessPiece.PieceType.PAWN) {
             if (chessPiece.getTeamColor() == ChessGame.TeamColor.WHITE) {
                 if (row2 == 8) {
@@ -374,15 +419,8 @@ public class Client {
             }
         }
         ChessMove chessMove = new ChessMove(startPosition, endPosition, promotionPiece);
-        serverFacade.makeMove(wsClient, authData, updatedGameData.gameID(), chessMove);
+        serverFacade.makeMove(wsClient, authData, currentGameData.gameID(), chessMove);
     }
-//    private void updateChessBoard(WSClient wsClient, GameData gameData) {
-//        try {
-//            serverFacade.loadGame(wsClient, authData, gameData.gameID());
-//        } catch (Exception ex) {
-//            throw new RuntimeException(ex);
-//        }
-//    }
     private ChessPiece.PieceType selectPromotionPiece() {
         System.out.println("Please select which piece you would like to promote to:");
         System.out.println("1. Queen");
@@ -399,7 +437,7 @@ public class Client {
         };
     }
 
-    synchronized public void highlightLegalMoves(WSClient wsClient, AuthData authData, GameData gameData, ChessGame.TeamColor teamColor) {
+    synchronized public void highlightLegalMoves(ChessGame.TeamColor teamColor) {
 //        GameData updatedGameData = getGameData(gameData);
 //        if (updatedGameData == null) {
 //            System.out.println("Game not found. Try leaving and reconnecting.");

@@ -122,11 +122,11 @@ public class ServerFacade {
             throw new RuntimeException(ex.getMessage());
         }
     }
-//    public void loadGame(WSClient wsClient, AuthData authData, int gameID) {
-//        try {
-//            wsClient.loadGameRequest(authData, gameID);
-//        } catch (Exception ex) {
-//            throw new RuntimeException(ex.getMessage());
-//        }
-//    }
+    public void observeGame(WSClient wsClient, AuthData authData, int gameID) {
+        try {
+            wsClient.observeGame(authData, gameID);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
+    }
 }

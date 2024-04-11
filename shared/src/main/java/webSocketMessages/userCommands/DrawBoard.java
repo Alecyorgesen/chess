@@ -9,4 +9,8 @@ public class DrawBoard extends UserGameCommand {
         this.commandType = CommandType.DRAW_BOARD;
         this.gameID = gameID;
     }
+
+    public int getGameID() {
+        return gameID;
+    }
 }
