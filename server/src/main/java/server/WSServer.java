@@ -7,7 +7,6 @@ import com.google.gson.Gson;
 import dataAccess.*;
 import model.AuthData;
 import model.GameData;
-import org.eclipse.jetty.server.Authentication;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.*;
 import webSocketMessages.serverMessages.ErrorMessage;
@@ -17,7 +16,6 @@ import webSocketMessages.userCommands.*;
 
 import java.util.*;
 
-import static webSocketMessages.userCommands.UserGameCommand.CommandType.*;
 
 @WebSocket
 public class WSServer {
@@ -28,7 +26,7 @@ public class WSServer {
     static Map<Integer, ActiveGame> activeGameMap = new HashMap<>();
 
     @OnWebSocketMessage
-    public void onMessage(Session session, String msg) throws Exception {
+    public void onMessage(Session session, String msg) {
         UserGameCommand command = new Gson().fromJson(msg, UserGameCommand.class);
         Connection connection = new Connection(command.getAuthString(), session);
 //        Check for connections. If it doesn't exist already, add it.
@@ -56,6 +54,7 @@ public class WSServer {
                 case DRAW_BOARD:
                     DrawBoard drawBoard = new Gson().fromJson(msg, DrawBoard.class);
                     drawBoard(conn, drawBoard);
+                    break;
                 case MAKE_MOVE:
                     MakeMove makeMove = new Gson().fromJson(msg, MakeMove.class);
                     makeMove(conn, makeMove);
@@ -64,7 +63,10 @@ public class WSServer {
                     Leave leave = new Gson().fromJson(msg, Leave.class);
                     leave(conn, leave);
                     break;
-//                case RESIGN -> resign(conn, command);
+                case RESIGN:
+                    Resign resign = new Gson().fromJson(msg, Resign.class);
+                    resign(conn, resign);
+                    break;
                 default:
                     System.out.println("Something went wrong with message from client");
                     break;
@@ -75,6 +77,11 @@ public class WSServer {
     }
     public void join(Connection connection, JoinPlayer joinPlayer) {
         try {
+            AuthData authData = authDAO.getAuthUsingAuth(connection.getAuthToken());
+            if (authData == null) {
+                sendError(connection, "Not Authorized.");
+                return;
+            }
             int gameID = joinPlayer.getGameID();
             ChessGame.TeamColor playerColor = joinPlayer.getPlayerColor();
             boolean shouldAddToMap = true;
@@ -142,8 +149,10 @@ public class WSServer {
 
             ActiveGame activeGame = activeGameMap.get(gameID);
             if (playerColor == null) {
-                activeGame.notifyAllInGameExceptForConnection(connection, username + " has stopped observing the game.");
-                activeGame.removeObserver(connection);
+                if (activeGame != null) {
+                    activeGame.notifyAllInGameExceptForConnection(connection, username + " has stopped observing the game.");
+                    activeGame.removeObserver(connection);
+                }
             } else if (playerColor == ChessGame.TeamColor.WHITE) {
                 activeGame.notifyAllInGameExceptForConnection(connection, username + " has left the game.");
                 activeGame.setWhitePlayer(null);
@@ -186,85 +195,109 @@ public class WSServer {
     }
     public void makeMove(Connection connection, MakeMove makeMove) {
         try {
-        int gameID = makeMove.getGameID();
-        ChessMove chessMove = makeMove.getChessMove();
-        ActiveGame activeGame = activeGameMap.get(gameID);
-        GameData gameData = gameDAO.getGame(gameID);
-        ChessGame chessGame = gameData.game();
-        ChessGame.TeamColor teamColor = null;
-        if (activeGame.getWhitePlayer() != null && activeGame.getWhitePlayer().getAuthToken().equals(connection.getAuthToken())) {
-            if (chessGame.getTeamTurn() == ChessGame.TeamColor.WHITE) {
-                chessGame.makeMove(chessMove);
-                teamColor = ChessGame.TeamColor.WHITE;
-            } else {
-                sendError(connection,"It's not your turn!");
+            int gameID = makeMove.getGameID();
+            ChessMove chessMove = makeMove.getChessMove();
+            ActiveGame activeGame = activeGameMap.get(gameID);
+            GameData gameData = gameDAO.getGame(gameID);
+            ChessGame chessGame = gameData.game();
+            if (chessGame.playerResigned) {
+                sendError(connection, "A Player has resigned. The game is over.");
+                return;
             }
-        } else if (activeGame.getBlackPlayer() != null && activeGame.getBlackPlayer().getAuthToken().equals((connection.getAuthToken()))) {
-            if (chessGame.getTeamTurn() == ChessGame.TeamColor.BLACK) {
-                chessGame.makeMove(chessMove);
-                teamColor = ChessGame.TeamColor.BLACK;
+            ChessGame.TeamColor teamColor = null;
+            if (activeGame.getWhitePlayer() != null && activeGame.getWhitePlayer().getAuthToken().equals(connection.getAuthToken())) {
+                if (chessGame.getTeamTurn() == ChessGame.TeamColor.WHITE) {
+                    chessGame.makeMove(chessMove);
+                    teamColor = ChessGame.TeamColor.WHITE;
+                } else {
+                    sendError(connection,"It's not your turn!");
+                    return;
+                }
+            } else if (activeGame.getBlackPlayer() != null && activeGame.getBlackPlayer().getAuthToken().equals((connection.getAuthToken()))) {
+                if (chessGame.getTeamTurn() == ChessGame.TeamColor.BLACK) {
+                    chessGame.makeMove(chessMove);
+                    teamColor = ChessGame.TeamColor.BLACK;
+                } else {
+                    sendError(connection,"It's not your turn!");
+                    return;
+                }
             } else {
-                sendError(connection,"It's not your turn!");
+                sendError(connection, "You can't make a move if you are observing.");
+                return;
             }
-        } else {
-            sendError(connection, "You can't make a move if you are observing.");
-            return;
-        }
-        synchronized (syncronizedObject) {
-            gameDAO.updateGame(gameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), chessGame);
-        }
-        loadGame(activeGame.getWhitePlayer(), gameID);
-        loadGame(activeGame.getBlackPlayer(), gameID);
-        for (Connection connection_ : activeGame.getObservers()) {
-            loadGame(connection_, gameID);
-        }
-        int row1 = chessMove.getStartPosition().getRow();
-        int col1 = chessMove.getStartPosition().getColumn();
-        int row2 = chessMove.getEndPosition().getRow();
-        int col2 = chessMove.getEndPosition().getColumn();
-        String col1AsString = switch (col1) {
-            case 1 -> "a";
-            case 2 -> "b";
-            case 3 -> "c";
-            case 4 -> "d";
-            case 5 -> "e";
-            case 6 -> "f";
-            case 7 -> "g";
-            case 8 -> "h";
-            default -> "";
-        };
-        String col2AsString = switch (col2) {
-            case 1 -> "a";
-            case 2 -> "b";
-            case 3 -> "c";
-            case 4 -> "d";
-            case 5 -> "e";
-            case 6 -> "f";
-            case 7 -> "g";
-            case 8 -> "h";
-            default -> "";
-        };
-        String coordinate1 = row1 + col1AsString;
-        String coordinate2 = row2 + col2AsString;
-        String playerColor = null;
-        if (teamColor == ChessGame.TeamColor.WHITE) {
-            playerColor = "White";
-        } else {
-            playerColor = "Black";
-        }
-        activeGame.notifyAllInGameExceptForConnection(connection, playerColor + " moved " + coordinate2 + " to " + coordinate1 + ".");
+            synchronized (syncronizedObject) {
+                gameDAO.updateGame(gameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), chessGame);
+            }
+            loadGame(activeGame.getWhitePlayer(), gameID);
+            loadGame(activeGame.getBlackPlayer(), gameID);
+            for (Connection connection_ : activeGame.getObservers()) {
+                loadGame(connection_, gameID);
+            }
+            int row1 = chessMove.getStartPosition().getRow();
+            int col1 = chessMove.getStartPosition().getColumn();
+            int row2 = chessMove.getEndPosition().getRow();
+            int col2 = chessMove.getEndPosition().getColumn();
+            String col1AsString = switch (col1) {
+                case 1 -> "a";
+                case 2 -> "b";
+                case 3 -> "c";
+                case 4 -> "d";
+                case 5 -> "e";
+                case 6 -> "f";
+                case 7 -> "g";
+                case 8 -> "h";
+                default -> "";
+            };
+            String col2AsString = switch (col2) {
+                case 1 -> "a";
+                case 2 -> "b";
+                case 3 -> "c";
+                case 4 -> "d";
+                case 5 -> "e";
+                case 6 -> "f";
+                case 7 -> "g";
+                case 8 -> "h";
+                default -> "";
+            };
+            String coordinate1 = row1 + col1AsString;
+            String coordinate2 = row2 + col2AsString;
+            String playerColor;
+            if (teamColor == ChessGame.TeamColor.WHITE) {
+                playerColor = "White";
+            } else {
+                playerColor = "Black";
+            }
+            activeGame.notifyAllInGameExceptForConnection(connection, playerColor + " moved " + coordinate2 + " to " + coordinate1 + ".");
+            if (chessGame.isInCheckmate(ChessGame.TeamColor.WHITE)) {
+                notifyAll("White won the game!");
+            } else if (chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+                notifyAll("Black won the game!");
+            } else if (chessGame.isInStalemate(ChessGame.TeamColor.WHITE)) {
+                notifyAll("The game finished in a stalemate.");
+            } else if (chessGame.isInStalemate(ChessGame.TeamColor.BLACK)) {
+                notifyAll("The game finished in a stalemate.");
+            }
         } catch (Exception ex) {
             sendError(connection, ex.getMessage());
         }
     }
     public void observe(Connection connection, JoinObserver joinObserver) {
         try {
+            AuthData authData = authDAO.getAuthUsingAuth(joinObserver.getAuthString());
+            if (authData == null) {
+                sendError(connection, "Not Authorized.");
+                return;
+            }
             int gameID = joinObserver.getGameID();
+            GameData gamedata = gameDAO.getGame(gameID);
+            if (gamedata == null) {
+                sendError(connection, "Game not found");
+                return;
+            }
             ActiveGame activeGame = activeGameMap.get(gameID);
             if (activeGame == null) {
                 activeGame = new ActiveGame(gameID);
             }
-            AuthData authData = authDAO.getAuthUsingAuth(joinObserver.getAuthString());
             String username = authData.username();
             activeGame.addObserver(connection);
             loadGame(connection, gameID);
@@ -276,6 +309,19 @@ public class WSServer {
     public void drawBoard(Connection connection, DrawBoard drawBoard) {
         try {
             loadGame(connection, drawBoard.getGameID());
+        } catch (Exception ex) {
+            sendError(connection, ex.getMessage());
+        }
+    }
+    public void resign(Connection connection, Resign resign) {
+        try {
+            int gameID = resign.getGameID();
+            GameData gameData = gameDAO.getGame(gameID);
+            ActiveGame activeGame = activeGameMap.get(gameID);
+            gameData.game().playerResigned = true;
+            AuthData authData = authDAO.getAuthUsingAuth(resign.getAuthString());
+            String username = authData.username();
+            activeGame.notifyAllInGame(username + " resigned. The game is over.");
         } catch (Exception ex) {
             sendError(connection, ex.getMessage());
         }

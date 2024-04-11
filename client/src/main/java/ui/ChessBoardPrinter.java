@@ -92,14 +92,24 @@ public class ChessBoardPrinter {
             out.print(numberCoordinates[i-1]);
             for (int j = 1; j < 9; j++) {
                 boolean isPiecePosition = false;
-                ChessPosition piecePosition = new ChessPosition(i, j);
+                ChessPosition piecePosition;
+                if (whitePerspective) {
+                    piecePosition = new ChessPosition(flipCoordinate(i), j);
+                } else {
+                    piecePosition = new ChessPosition(i, flipCoordinate(j));
+                }
                 if (piecePosition.equals(chessPosition)) {
                     isPiecePosition = true;
                 }
                 boolean validSpot = false;
                 if (chessGame != null) {
                     HashSet<ChessMove> possibleMoves = (HashSet<ChessMove>) chessGame.validMoves(chessPosition);
-                    ChessPosition currentPosition = new ChessPosition(i,j);
+                    ChessPosition currentPosition;
+                    if (whitePerspective) {
+                        currentPosition = new ChessPosition(flipCoordinate(i), j);
+                    } else {
+                        currentPosition = new ChessPosition(i, flipCoordinate(j));
+                    }
                     if (possibleMoves != null) {
                         for (ChessMove move : possibleMoves) {
                             if (move.getEndPosition().equals(currentPosition)) {

@@ -31,19 +31,30 @@ public class ActiveGame {
     }
     public void notifyAllInGameExceptForConnection(Connection connection, String message) {
         if (getWhitePlayer()!=null) {
-            if (getWhitePlayer().getAuthToken().equals(connection.getAuthToken())) {
-                WSServer.notify(connection, message);
+            if (!getWhitePlayer().getAuthToken().equals(connection.getAuthToken())) {
+                WSServer.notify(getWhitePlayer(), message);
             }
         }
         if (getBlackPlayer()!=null) {
-            if (getBlackPlayer().getAuthToken().equals(connection.getAuthToken())) {
-                WSServer.notify(connection, message);
+            if (!getBlackPlayer().getAuthToken().equals(connection.getAuthToken())) {
+                WSServer.notify(getBlackPlayer(), message);
             }
         }
         for (Connection connection_ : observers) {
-            if (connection_.getAuthToken().equals(connection.getAuthToken())) {
-                WSServer.notify(connection, message);
+            if (!connection_.getAuthToken().equals(connection.getAuthToken())) {
+                WSServer.notify(connection_, message);
             }
+        }
+    }
+    public void notifyAllInGame(String message) {
+        if (getWhitePlayer()!=null) {
+            WSServer.notify(getWhitePlayer(), message);
+        }
+        if (getBlackPlayer()!=null) {
+            WSServer.notify(getBlackPlayer(), message);
+        }
+        for (Connection connection_ : observers) {
+            WSServer.notify(connection_, message);
         }
     }
 

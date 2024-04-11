@@ -12,6 +12,7 @@ import java.util.HashSet;
 public class ChessGame {
     TeamColor teamTurn;
     ChessBoard board = new ChessBoard();
+    public boolean playerResigned = false;
     public ChessGame() {
         teamTurn = TeamColor.WHITE;
     }

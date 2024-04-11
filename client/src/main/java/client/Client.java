@@ -333,7 +333,6 @@ public class Client {
                 case "5":
                 case "resign":
                     serverFacade.resign(wsClient, authData, gameID);
-                    shouldLoop = false;
                     break;
                 case "6":
                 case "legal moves":
@@ -346,7 +345,7 @@ public class Client {
     }
     private void helpDuringGame() {
         System.out.println("Help: I hope you know what help does by now.");
-        System.out.println("Redraw Chess Board: This let's you see the current state of the game. 'Redraw' or 2.");
+        System.out.println("Redraw Chess Board: This let's you see the current state of the game. 'redraw' or 2.");
         System.out.println("Leave: This lets you leave the game. You can resume whenever you like.");
         System.out.println("Make Move: Select this and enter the coordinates of the piece you would like to move and its destination. To select, type 'move'.");
         System.out.println("Resign: This ends the game. Your opponent automatically wins if you do this option");
@@ -438,11 +437,6 @@ public class Client {
     }
 
     synchronized public void highlightLegalMoves(ChessGame.TeamColor teamColor) {
-//        GameData updatedGameData = getGameData(gameData);
-//        if (updatedGameData == null) {
-//            System.out.println("Game not found. Try leaving and reconnecting.");
-//            return;
-//        }
         System.out.println("Which piece would you like see the moves for?");
         String position1 = scanner.nextLine();
         int row;
@@ -468,31 +462,6 @@ public class Client {
             System.out.println("Invalid Position");
             return;
         }
-        if (teamColor != ChessGame.TeamColor.BLACK) {
-            row = switch (row) {
-                case 1 -> 8;
-                case 2 -> 7;
-                case 3 -> 6;
-                case 4 -> 5;
-                case 5 -> 4;
-                case 6 -> 3;
-                case 7 -> 2;
-                case 8 -> 1;
-                default -> 0;
-            };
-        } else {
-            column = switch (column) {
-                case 1 -> 8;
-                case 2 -> 7;
-                case 3 -> 6;
-                case 4 -> 5;
-                case 5 -> 4;
-                case 6 -> 3;
-                case 7 -> 2;
-                case 8 -> 1;
-                default -> 0;
-            };
-        }
         ChessPosition chessPosition = new ChessPosition(row, column);
         ChessGame chessGame = currentGameData.game();
         if (teamColor == ChessGame.TeamColor.WHITE) {
@@ -500,21 +469,6 @@ public class Client {
         } else {
             chessBoardPrinter.printBoardFromBlackSideWithHighlight(currentGameData.game().getBoard(), chessGame, chessPosition);
         }
-    }
-    private GameData getGameData(GameData gameData) {
-        GameData updatedGameData = null;
-        try {
-            ListGamesResponse listGamesResponse = serverFacade.listGames(authData);
-            List<GameData> listOfGameData = listGamesResponse.games();
-            for (GameData gameDataFromLoop : listOfGameData) {
-                if (gameDataFromLoop.gameID() == gameData.gameID()) {
-                    updatedGameData = gameDataFromLoop;
-                }
-            }
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-        return updatedGameData;
     }
     public static String getCurrentUser() {
         return currentUser;

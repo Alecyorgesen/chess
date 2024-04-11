@@ -7,6 +7,8 @@ import message.ErrorMessage;
 import model.AuthData;
 import org.eclipse.jetty.websocket.api.*;
 
+import java.util.Objects;
+
 public class Connection {
     AuthDAO authDAO = new AuthSQLDAO();
     String authToken;
@@ -52,5 +54,18 @@ public class Connection {
         } catch (Exception ex) {
             sendError(session,ex.getMessage());
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Connection that = (Connection) o;
+        return Objects.equals(authToken, that.authToken);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(authToken);
     }
 }
