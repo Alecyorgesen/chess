@@ -4,13 +4,9 @@ import chess.*;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 
 public class ChessBoardPrinter {
-    final int SQUARE_LENGTH = 3;
-    final int CHESS_BOARD_WIDTH = 10 * SQUARE_LENGTH;
     final String BLANK_SQUARE = "   ";
     public void printBoardFromWhiteSide(ChessBoard board) {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
@@ -21,19 +17,6 @@ public class ChessBoardPrinter {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(EscapeSequences.ERASE_SCREEN);
         printBoardFromBlackPerspective(out, board, null, null);
-    }
-    public void printChessBoard(ChessBoard board) {
-        board.resetBoard();
-
-        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-
-        out.print(EscapeSequences.ERASE_SCREEN);
-
-        printBoardFromBlackPerspective(out, board, null, null);
-        printSpaceInBetweenBoards(out);
-        printBoardFromWhitePerspective(out, board, null, null);
-
-//        out.print(BLANK_SQUARE);
     }
     public void printBoardFromWhiteSideWithHighlight(ChessBoard board, ChessGame chessGame, ChessPosition chessPosition) {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);

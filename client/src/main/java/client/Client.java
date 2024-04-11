@@ -17,7 +17,6 @@ public class Client {
     ChessBoardPrinter chessBoardPrinter = new ChessBoardPrinter();
     public static GameData currentGameData = null;
     public static String currentUser = "";
-    public static boolean isObserving = false;
 
     public void run() {
         beforeLoginLoop();
@@ -194,7 +193,7 @@ public class Client {
     private void joinGame() {
         listGames();
         System.out.println("Please select the number of the game you would like to join.");
-        int number = 0;
+        int number;
         try {
             number = Integer.parseInt(scanner.nextLine());
         } catch (Exception ex) {
@@ -254,7 +253,6 @@ public class Client {
 
         observeGameLoop(gameID, ChessGame.TeamColor.WHITE);
     }
-// You'll need to add functionality for what you can do if you are observing.
     public void observeGameLoop(int gameID, ChessGame.TeamColor teamColor) {
         WSClient wsClient;
         try {

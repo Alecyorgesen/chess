@@ -4,8 +4,6 @@ import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializer;
 import model.AuthData;
 import model.GameData;
 import ui.ChessBoardPrinter;
@@ -30,7 +28,6 @@ public class WSClient extends Endpoint {
 
         this.session.addMessageHandler(new MessageHandler.Whole<String>() {
             public void onMessage(String message) {
-//                System.out.println(message + "hey now");
                 ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
                 LoadGame loadGame = new Gson().fromJson(message, LoadGame.class);
                 Notification notification = new Gson().fromJson(message, Notification.class);

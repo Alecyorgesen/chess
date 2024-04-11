@@ -1,6 +1,5 @@
 package server;
 
-import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
@@ -29,7 +28,6 @@ public class WSServer {
     public void onMessage(Session session, String msg) {
         UserGameCommand command = new Gson().fromJson(msg, UserGameCommand.class);
         Connection connection = new Connection(command.getAuthString(), session);
-//        Check for connections. If it doesn't exist already, add it.
         boolean shouldAddConnection = true;
         for (Connection connection_ : connections) {
             if (Objects.equals(connection_.getAuthToken(), connection.getAuthToken())) {
@@ -136,7 +134,7 @@ public class WSServer {
             ChessGame.TeamColor playerColor = null;
             if (gameData.whiteUsername() != null){
                 if (gameData.whiteUsername().equals(username)) {
-                    gameData = gameData.setWhiteUsername(null); //You must assign it like this because gameData is a record.
+                    gameData = gameData.setWhiteUsername(null);
                     playerColor = ChessGame.TeamColor.WHITE;
                 }
             } else if (gameData.blackUsername() != null) {
