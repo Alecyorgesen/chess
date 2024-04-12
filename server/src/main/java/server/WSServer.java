@@ -267,13 +267,17 @@ public class WSServer {
             }
             activeGame.notifyAllInGameExceptForConnection(connection, playerColor + " moved " + coordinate2 + " to " + coordinate1 + ".");
             if (chessGame.isInCheckmate(ChessGame.TeamColor.WHITE)) {
-                notifyAll("White won the game!");
+                notifyAll("White won the game! Black is in checkmate.");
             } else if (chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)) {
-                notifyAll("Black won the game!");
+                notifyAll("Black won the game! White is in checkmate.");
             } else if (chessGame.isInStalemate(ChessGame.TeamColor.WHITE)) {
                 notifyAll("The game finished in a stalemate.");
             } else if (chessGame.isInStalemate(ChessGame.TeamColor.BLACK)) {
                 notifyAll("The game finished in a stalemate.");
+            } else if (chessGame.isInCheck(ChessGame.TeamColor.WHITE)) {
+                notifyAll("White is in check!");
+            } else if (chessGame.isInCheck(ChessGame.TeamColor.BLACK)) {
+                notifyAll("Black is in check!");
             }
         } catch (Exception ex) {
             sendError(connection, ex.getMessage());
