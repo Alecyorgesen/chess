@@ -8,7 +8,7 @@ import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.*;
-import webSocketMessages.serverMessages.ErrorMessage;
+import webSocketMessages.serverMessages.Error;
 import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
 import webSocketMessages.userCommands.*;
@@ -175,7 +175,7 @@ public class WSServer {
     }
     public void sendError(Connection connection, String message) {
         try {
-            ErrorMessage errorMessage = new ErrorMessage(message);
+            Error errorMessage = new Error(message);
             String json = new Gson().toJson(errorMessage);
             connection.getSession().getRemote().sendString(json);
         } catch (Exception ex) {
@@ -316,7 +316,12 @@ public class WSServer {
             int gameID = resign.getGameID();
             GameData gameData = gameDAO.getGame(gameID);
             ActiveGame activeGame = activeGameMap.get(gameID);
+            if (gameData.game().playerResigned) {
+                sendError(connection, "Already resigned!");
+                return;
+            }
             gameData.game().playerResigned = true;
+            gameDAO.updateGame(gameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gameData.game());
             AuthData authData = authDAO.getAuthUsingAuth(resign.getAuthString());
             String username = authData.username();
             activeGame.notifyAllInGame(username + " resigned. The game is over.");

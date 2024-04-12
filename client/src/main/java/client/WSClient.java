@@ -7,7 +7,7 @@ import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
 import ui.ChessBoardPrinter;
-import webSocketMessages.serverMessages.ErrorMessage;
+import webSocketMessages.serverMessages.Error;
 import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
 import webSocketMessages.serverMessages.ServerMessage;
@@ -31,7 +31,7 @@ public class WSClient extends Endpoint {
                 ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
                 LoadGame loadGame = new Gson().fromJson(message, LoadGame.class);
                 Notification notification = new Gson().fromJson(message, Notification.class);
-                ErrorMessage errorMessage = new Gson().fromJson(message, ErrorMessage.class);
+                Error errorMessage = new Gson().fromJson(message, Error.class);
                 switch (serverMessage.getServerMessageType()) {
                     case LOAD_GAME:
                         loadGame(loadGame);
